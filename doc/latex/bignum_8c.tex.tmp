@@ -1,0 +1,51 @@
+\hypertarget{bignum_8c}{}\doxysection{src/bignum.c File Reference}
+\label{bignum_8c}\index{src/bignum.c@{src/bignum.c}}
+{\ttfamily \#include $<$bignum.\+h$>$}\newline
+{\ttfamily \#include $<$stdio.\+h$>$}\newline
+Include dependency graph for bignum.\+c\+:
+% FIG 0
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+int \mbox{\hyperlink{bignum_8c_a0d2d2ad08be5ca2f623ae54c1590aac5}{big\+Num\+Init}} (void)
+\begin{DoxyCompactList}\small\item\em Multiplies two numbers. \end{DoxyCompactList}\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{bignum_8c_a0d2d2ad08be5ca2f623ae54c1590aac5}\label{bignum_8c_a0d2d2ad08be5ca2f623ae54c1590aac5}} 
+\index{bignum.c@{bignum.c}!bigNumInit@{bigNumInit}}
+\index{bigNumInit@{bigNumInit}!bignum.c@{bignum.c}}
+\doxysubsubsection{\texorpdfstring{bigNumInit()}{bigNumInit()}}
+{\footnotesize\ttfamily int big\+Num\+Init (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+
+
+Multiplies two numbers. 
+
+Magic number for magical computation.
+
+This function multiplies a number times another number and returns the result of those two numbers multiplied together. The result is the product of the two numbers, and that is the value that is returned by this function.
+
+
+\begin{DoxyParams}{Parameters}
+{\em x} & The first operand.\\
+\hline
+{\em y} & The second operand.\\
+\hline
+\end{DoxyParams}
+\begin{DoxyReturn}{Returns}
+The product of {\ttfamily x} and {\ttfamily y}. 
+\end{DoxyReturn}
+
+
+Definition at line \mbox{\hyperlink{bignum_8c_source_l00018}{18}} of file \mbox{\hyperlink{bignum_8c_source}{bignum.\+c}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00019\ \{}
+\DoxyCodeLine{00020\ \ \ \ \ \textcolor{keywordtype}{int}\ i\ =\ 1;}
+\DoxyCodeLine{00021\ }
+\DoxyCodeLine{00022\ \ \ \ \ printf(\textcolor{stringliteral}{"{}Hello\ World\ (\%d)!!\(\backslash\)n"{}},\ 1);}
+\DoxyCodeLine{00023\ \}}
+
+\end{DoxyCode}

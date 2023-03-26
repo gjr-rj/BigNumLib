@@ -1,0 +1,39 @@
+\hypertarget{bignumQA_8c}{}\doxysection{bignum\+QA.\+c File Reference}
+\label{bignumQA_8c}\index{bignumQA.c@{bignumQA.c}}
+{\ttfamily \#include $<$bignum.\+h$>$}\newline
+Include dependency graph for bignum\+QA.\+c\+:
+% FIG 0
+\doxysubsection*{Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{bignumQA_8c_a6288eba0f8e8ad3ab1544ad731eb7667_a6288eba0f8e8ad3ab1544ad731eb7667}{main}} (void)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Function Documentation}
+\mbox{\Hypertarget{bignumQA_8c_a6288eba0f8e8ad3ab1544ad731eb7667_a6288eba0f8e8ad3ab1544ad731eb7667}\label{bignumQA_8c_a6288eba0f8e8ad3ab1544ad731eb7667_a6288eba0f8e8ad3ab1544ad731eb7667}} 
+\index{bignumQA.c@{bignumQA.c}!main@{main}}
+\index{main@{main}!bignumQA.c@{bignumQA.c}}
+\doxysubsubsection{\texorpdfstring{main()}{main()}}
+{\footnotesize\ttfamily void main (\begin{DoxyParamCaption}\item[{void}]{ }\end{DoxyParamCaption})}
+
+\begin{Desc}
+\item[Examples]\par
+\mbox{\hyperlink{bignumQA_8c-example}{bignum\+QA.\+c}}.\end{Desc}
+
+
+Definition at line \mbox{\hyperlink{bignumQA_8c_source_l00007}{7}} of file \mbox{\hyperlink{bignumQA_8c_source}{bignum\+QA.\+c}}.
+
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{00008\ \{}
+\DoxyCodeLine{00009\ \ \ \ \ \mbox{\hyperlink{bignum_8h_a0d2d2ad08be5ca2f623ae54c1590aac5_a0d2d2ad08be5ca2f623ae54c1590aac5}{bigNumInit}}();}
+\DoxyCodeLine{00010\ \}}
+
+\end{DoxyCode}
+
+
+References \mbox{\hyperlink{bignum_8h_a0d2d2ad08be5ca2f623ae54c1590aac5_a0d2d2ad08be5ca2f623ae54c1590aac5}{big\+Num\+Init()}}.
+
+Here is the call graph for this function\+:
+% FIG 1
