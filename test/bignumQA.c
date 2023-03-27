@@ -1,5 +1,6 @@
-#include <assert.h>
 #include <bignum.h>
+
+#include <assert.h>
 
 /** @example bignumQA.c
  * Unit and functional tests of the bignum library. The meso serves as an
