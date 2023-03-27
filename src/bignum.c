@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 #include <bignum.h>
 
 #define BITS_PER_BYTE 8

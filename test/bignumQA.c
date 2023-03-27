@@ -5,7 +5,9 @@
  * Unit and functional tests of the bignum library. The meso serves as an
  * example code of its use
  */
-void main(void) {
+void
+main(void)
+{
     bignum n0 = bigNumNew();
 
     assert(BN_FREE == n0);
@@ -15,7 +17,8 @@ void main(void) {
     assert(bigNumInit(7) == BN_ERR_NOT_SIZE_BYTE);
     assert(bigNumInit(42) == BN_ERR_NOT_SIZE_BYTE);
 
-    if (BN_OK == bigNumInit(8)) {
+    if (BN_OK == bigNumInit(8))
+    {
         bignum n1 = bigNumNew();
         bignum n2 = bigNumNew();
         bignum n3 = bigNumNew();
@@ -69,7 +72,8 @@ void main(void) {
         bigNumFinish();
     }
 
-    if (BN_OK == bigNumInit(16)) {
+    if (BN_OK == bigNumInit(16))
+    {
         bignum n1 = bigNumNew();
         bignum n2 = bigNumNew();
         bignum n3 = bigNumNew();
@@ -123,7 +127,8 @@ void main(void) {
         bigNumFinish();
     }
 
-    if (BN_OK == bigNumInit(40)) {
+    if (BN_OK == bigNumInit(40))
+    {
         bignum n1 = bigNumNew();
         bignum n2 = bigNumNew();
         bignum n3 = bigNumNew();
@@ -177,7 +182,8 @@ void main(void) {
         bigNumFinish();
     }
 
-    if (BN_OK == bigNumInit(80000)) {
+    if (BN_OK == bigNumInit(80000))
+    {
         bignum n1 = bigNumNew();
         bignum n2 = bigNumNew();
         bignum n3 = bigNumNew();

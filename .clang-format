@@ -23,7 +23,20 @@ AlwaysBreakTemplateDeclarations: No
 BinPackArguments: false
 BinPackParameters: false
 BreakBeforeBinaryOperators: None
-BreakBeforeBraces: Attach
+AlwaysBreakAfterReturnType: AllDefinitions
+BraceWrapping:
+  AfterClass:      true
+  AfterControlStatement: true
+  AfterEnum:       true
+  AfterFunction:   true
+  AfterNamespace:  true
+  AfterObjCDeclaration: true
+  AfterStruct:     true
+  AfterUnion:      true
+  BeforeCatch:     true
+  BeforeElse:      true
+  IndentBraces:    false
+BreakBeforeBraces: Custom
 # ################################################### doesn't attach enum braces
 BreakBeforeTernaryOperators: false
 BreakConstructorInitializers: AfterColon
@@ -55,7 +68,7 @@ NamespaceIndentation: All
 PenaltyReturnTypeOnItsOwnLine: 999
 PointerAlignment: Left
 ReflowComments: true
-SortIncludes: true
+SortIncludes: false
 SortUsingDeclarations: true
 SpaceAfterCStyleCast: false
 SpaceAfterLogicalNot: false
