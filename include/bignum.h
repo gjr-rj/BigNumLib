@@ -1,43 +1,24 @@
 #ifndef BIGNUN_H_
 #define BIGNUN_H_
 
-/*! \mainpage Drawing Shapes
- *
- * This project helps user to draw shapes.
- * Currently two types of shapes can be drawn:
- * - \subpage drawingRectanglePage "How to draw rectangle?"
- *
- * - \subpage drawingCirclePage "How to draw circle?"
- *
- */ 
+#include <bignumerr.h>>
 
-/*! \page drawingRectanglePage How to draw rectangle?
- *
- * Lorem ipsum dolor sit amet
- *
- */
-
-/*! \page drawingCirclePage How to draw circle?
- *
- * This page is about how to draw a circle.
- * Following sections describe circle:
- * - \ref groupCircleDefinition "Definition of Circle"
- * - \ref groupCircleClass "Circle Class"
- */
+typedef unsigned char* bignum;
 
 /**
- * \brief Multiplies two numbers.
+ * \brief initializes the big num, defining the maximum size in bits of the
+ * numbers to be manipulated. .
  *
- * This function multiplies a number times another number and returns the
- * result of those two numbers multiplied together. The result is the product
- * of the two numbers, and that is the value that is returned by this function.
+ * This function initializes the big num API by defining the size in bits to be
+ * used.
  *
- * \param x The first operand.
+ * \param numBits Max size of big number in bits. The number needs to be a
+ * multiple of 8 to give the exact amount of bytes. Only one init is allowed.
+ * For new startups it is necessary that the previous one is closed.
  *
- * \param y The second operand.
+ * \return BN_OK to sucess or error.
  *
- * \return The product of `x` and `y`.
  */
-int bigNumInit(void);
+int bigNumInit(unsigned int numBits);
 
 #endif /* #ifndef BIGNUN_H_ */
