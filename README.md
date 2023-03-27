@@ -15,23 +15,27 @@ This example was also used as a unit and functional test of the library created.
 ## Directory structure
 
 ### .vscode
-
+Vscode configuration files.
 ### bin
+Program binaries generated using lib de bingnum. Specifically, the binary of the quality tests.
 
 ### build
+Contains the scripts to build the lib and peripheral programs.
 
 ### doc
+Lib documentation.
 
 ### ide
+Workstace for IDEs.
 
 ### include
-
+Lib headers.
 ### lib
+Lib delivery.
 
 ### src
-
+Source code.
 
 ### test
-
-
+Test Application.
 
