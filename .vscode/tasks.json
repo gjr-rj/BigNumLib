@@ -5,12 +5,98 @@
 			"label": "Build Release",
 			"command": "py",
 			"args": [
-				"build.py"
+				"build.py",
+				"--release"
 			],
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}/build"
 			  }
-		}
+		},
+
+		{
+			"label": "Build Debug",
+			"command": "py",
+			"args": [
+				"build.py",
+				"--debug"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}/build"
+			  }
+		},
+
+		{
+			"label": "Generates Doc",
+			"command": "py",
+			"args": [
+				"build.py",
+				"--doc"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}/build"
+			  }
+		},
+
+		{
+			"label": "Run Tests",
+			"command": "py",
+			"args": [
+				"build.py",
+				"--smoke"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}/build"
+			  }
+		},
+
+		{
+			"label": "Build Smoke",
+			"command": "py",
+			"args": [
+				"build.py",
+				"--release",
+				"--smoke"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}/build"
+			  }
+		},
+
+		{
+			"label": "Build delivery",
+			"command": "py",
+			"args": [
+				"build.py",
+				"--smoke",
+				"--doc",
+				"--release"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}/build"
+			  }
+		},
+
+		{
+			"label": "Build Full",
+			"command": "py",
+			"args": [
+				"build.py",
+				"--smoke",
+				"--doc",
+				"--release",
+				"--debug"
+			],
+			"group": "build",
+			"options": {
+				"cwd": "${workspaceFolder}/build"
+			  }
+		},
 	],
+	
 }
