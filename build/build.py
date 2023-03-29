@@ -13,7 +13,7 @@ def build_debug():
     subprocess.run(["cmake", "--build", ".", "--config", "debug"])
 
 def exec_smoke():
-    subprocess.run(["../bin/Release/bignumlibQA.exe"])
+    subprocess.run(["../bin/Debug/bignumlibQA.exe"])
 
 def main():
     parser = argparse.ArgumentParser()

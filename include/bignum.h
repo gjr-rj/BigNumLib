@@ -3,7 +3,17 @@
 
 #include <bignumerr.h>
 
-#define BN_FREE NULL
+#define BN_FREE NULL /* bigNum is free  */
+
+/* flags to print */
+typedef enum
+{
+    BN_FLAG_PRINT_DEFAULT = 0x00, /* print default */
+    BN_FLAG_PRINT_ZERO = 0x100,   /* print leading zero */
+    BN_FLAG_PRINT_SPACE = 0x200,  /* print space between bytes */
+    BN_FLAG_PRINT_0X = 0x400,     /* print charx '0x' before hexa number */
+    BN_FLAG_PRINT_BREAK = 0x800   /* break line after print */
+} BN_PRINT_FLAGS;
 
 typedef unsigned char* bignum;
 typedef int bignumerr_t;
@@ -66,7 +76,7 @@ bignum bigNumNew(void);
  *
  * \note Use `bigNumLastError` to get the last error code.
  */
-void bigNumFree(bignum *bnum);
+void bigNumFree(bignum* bnum);
 
 /**
  * \brief finish the bignum.
@@ -74,5 +84,49 @@ void bigNumFree(bignum *bnum);
  * \note Use `bigNumLastError` to get the last error code.
  */
 void bigNumFinish(void);
+
+/**
+ * \brief Set a bignum with an positive integer value.
+ *
+ * This function set a bignum with an positive integer value.
+ *
+ * \param num bignum.
+ *
+ * \param intVal positive integer.
+ *
+ * \return bignumerr_t
+ * - BN_OK to sucess
+ * - error code.
+ */
+bignumerr_t bigNumSetInt(bignum num, unsigned int intVal);
+
+/**
+ * \brief Set a bignum with another bignum.
+ *
+ * \param num bignum to set value.
+ *
+ * \param bnVal bignum with value to set.
+ *
+ * \return bignumerr_t
+ * - BN_OK to sucess
+ * - error code.
+ */
+bignumerr_t bigNumSet(bignum num, bignum bnVal);
+
+/**
+ * \brief Print a bignum.
+ *
+ * \param num bignum to print.
+ *
+ * \param flag
+ *
+ * The first byte defines a number up to 255 referring to the hex
+ * number to be printed on the screen before breaking a line. If the value is 0,
+ * the byte string will not be broken into blocks.
+ *
+ * \note Use `bigNumLastError` to get the last error code.
+ *
+ */
+void bigNumPrint(bignum num, BN_PRINT_FLAGS flag);
 
 #endif /* #ifndef BIGNUN_H_ */
