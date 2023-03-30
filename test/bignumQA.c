@@ -39,6 +39,40 @@ main(void)
                 assert(bigNumCmpBit(n3, 0) == 0);
                 assert(bigNumCmp(n3, n4) == 0);
 */
+        assert(bigNumSetHex(n2, NULL) == BN_ERR);
+        assert(bigNumSetHex(n2, "") == BN_ERR);
+        assert(bigNumSetHex(n2, "0") == BN_OK);
+        assert(bigNumSetHex(n2, "1") == BN_OK);
+        assert(bigNumSetHex(n2, "2") == BN_OK);
+        assert(bigNumSetHex(n2, "9") == BN_OK);
+        assert(bigNumSetHex(n2, "a") == BN_OK);
+        assert(bigNumSetHex(n2, "f") == BN_OK);
+        assert(bigNumSetHex(n2, "F") == BN_OK);
+        assert(bigNumSetHex(n2, "g") == BN_ERR);
+        assert(bigNumSetHex(n2, "A") == BN_OK);
+        assert(bigNumSetHex(n2, "01") == BN_OK);
+        assert(bigNumSetHex(n2, "20") == BN_OK);
+        assert(bigNumSetHex(n2, "9W") == BN_ERR);
+        assert(bigNumSetHex(n2, "aA") == BN_OK);
+        assert(bigNumSetHex(n2, "fF") == BN_OK);
+        assert(bigNumSetHex(n2, "39W") == BN_ERR);
+        assert(bigNumSetHex(n2, "3aA") == BN_OK);
+        assert(bigNumSetHex(n2, "44fF") == BN_OK);
+        assert(bigNumSetHex(n2, "3456A") == BN_OK);
+        assert(bigNumSetHex(n2, "68844DCBD44DDCBD") == BN_ERR_OVERFLOW);
+        assert(bigNumSetHex(n2,
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF") == BN_ERR_OVERFLOW);
+
+        assert(bigNumSetInt(n1, 1) == BN_OK);
+        bigNumPrint(n1, BN_FLAG_PRINT_0X);
+        printf("\n---------------------------\n");
+
         assert(bigNumSetInt(n1, 83849) == BN_OK);
 
         bigNumPrint(n1, BN_FLAG_PRINT_DEFAULT);
@@ -293,6 +327,22 @@ main(void)
                 assert(bigNumCmpBit(n3, 0) == 0);
                 assert(bigNumCmp(n3, n4) == 0);
 */
+
+        assert(bigNumSetHex(n2, "68844DCBD44DDCBD") == BN_OK);
+        bigNumPrint(n2, 16 | BN_FLAG_PRINT_0X | BN_FLAG_PRINT_SPACE);
+        printf("\n---------------------------\n");
+
+        assert(bigNumSetHex(n2,
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF") == BN_ERR);
+        bigNumPrint(n2, 16 | BN_FLAG_PRINT_0X | BN_FLAG_PRINT_SPACE);
+        printf("\n---------------------------\n");
+
         assert(bigNumSetInt(n1, 838493355) == BN_OK);
 
         bigNumPrint(n1, BN_FLAG_PRINT_DEFAULT);

@@ -101,6 +101,25 @@ void bigNumFinish(void);
 bignumerr_t bigNumSetInt(bignum num, unsigned int intVal);
 
 /**
+ * \brief Set a bignum with an string.
+ *
+ * This function set a bignum with an string representing hexadecimal number.
+ *
+ * \noteall characters must be hex representatives. The string must be less than
+ * or equal to the length defined for the bignum. In case of error, bignum will
+ * not have its value set.
+ *
+ * \param num bignum.
+ *
+ * \param charVal string.
+ *
+ * \return bignumerr_t
+ * - BN_OK to sucess
+ * - error code.
+ */
+bignumerr_t bigNumSetHex(bignum num, char* charVal);
+
+/**
  * \brief Set a bignum with another bignum.
  *
  * \param num bignum to set value.

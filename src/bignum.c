@@ -4,9 +4,10 @@
 
 #include <bignum.h>
 
-#define TRUE          1
-#define FALSE         0
-#define BOOL          unsigned char
+#define BOOL  unsigned char
+#define TRUE  1
+#define FALSE 0
+
 #define BITS_PER_BYTE 8
 
 typedef struct _bignumlist
@@ -17,9 +18,68 @@ typedef struct _bignumlist
 } bignumlist, *pbignumlist;
 
 static bignumlist bnTop = {NULL, NULL};
-static int bnLastError_ = BN_OK;
+static bignumerr_t bnLastError_ = BN_OK;
 
 static unsigned int numBits_ = 0;
+
+#define IS_DIGIT(n)     ((n >= '0') && (n <= '9'))
+#define DIGIT_TO_HEX(n) (n - '0')
+
+#define IS_AF(n)     ((n >= 'A') && (n <= 'F'))
+#define AF_TO_HEX(n) (n - 'A' + 10)
+
+#define IS_af(n)     ((n >= 'a') && (n <= 'f'))
+#define af_TO_HEX(n) (n - 'a' + 10)
+
+/*----------------------------------------------------------------------------*/
+unsigned char
+bnChr2ToByte_(char* charVal)
+{
+    bignumerr_t rc = BN_OK;
+    unsigned char hex = 0;
+
+    if (0 == charVal[0])
+    {
+        rc = BN_ERR;
+    }
+
+    if (BN_OK == rc)
+    {
+        for (int i = 0; i < 2; i++)
+        {
+            if (0 == charVal[i])
+            {
+                continue;
+            }
+
+            if (1 == i)
+            {
+                hex = hex << 4;
+            }
+
+            if (IS_DIGIT(charVal[i]))
+            {
+                hex |= DIGIT_TO_HEX(charVal[i]);
+            }
+            else if (IS_AF(charVal[i]))
+            {
+                hex |= AF_TO_HEX(charVal[i]);
+            }
+            else if (IS_af(charVal[i]))
+            {
+                hex |= af_TO_HEX(charVal[i]);
+            }
+            else
+            {
+                rc = BN_ERR;
+                break;
+            }
+        }
+    }
+
+    bnLastError_ = rc;
+    return hex;
+}
 
 /*----------------------------------------------------------------------------*/
 static unsigned int
@@ -75,10 +135,7 @@ bnPutBytes_(bignum num, unsigned char* byteChar, unsigned int size)
     if (BN_OK == rc)
     {
         memset(num, 0, numBytes);
-        for (unsigned int i = 0; i < size; i++)
-        {
-            num[i] = byteChar[i];
-        }
+        memcpy(num, byteChar, size);
     }
 
     bnLastError_ = rc;
@@ -214,6 +271,66 @@ bigNumSetInt(bignum num, unsigned int intVal)
 {
     unsigned char* byteChar = (unsigned char*)&intVal;
     return bnPutBytes_(num, byteChar, sizeof(unsigned int));
+}
+
+/*----------------------------------------------------------------------------*/
+bignumerr_t
+bigNumSetHex(bignum num, char* charVal)
+{
+    bignumerr_t rc = BN_OK;
+    unsigned char* hexVal;
+    unsigned numBytes = bnGetSizeInBytes_();
+    unsigned int chrLen;
+    unsigned int hexLen;
+
+    if (NULL == charVal)
+    {
+        rc = BN_ERR;
+    }
+
+    if (BN_OK == rc)
+    {
+        chrLen = (unsigned int)strlen(charVal);
+        hexLen = (chrLen < 2) ? 1 : (chrLen / 2) + (chrLen % 2);
+
+        if (hexLen > numBytes)
+        {
+            rc = BN_ERR_OVERFLOW;
+        }
+    }
+
+    if (BN_OK == rc)
+    {
+        hexVal = (unsigned char*)malloc(hexLen);
+
+        if (NULL != hexVal)
+        {
+            for (unsigned int i = 0; i < hexLen; i++)
+            {
+                unsigned char c = bnChr2ToByte_(charVal + (i * 2));
+                hexVal[i] = c;
+                if (BN_OK != bnLastError_)
+                {
+                    rc = bnLastError_;
+                    break;
+                }
+            }
+
+            if (BN_OK == rc)
+            {
+                rc = bnPutBytes_(num, hexVal, hexLen);
+            }
+
+            free(hexVal);
+        }
+        else
+        {
+            rc = BN_ERR_NOT_MEM;
+        }
+    }
+
+    bnLastError_ = rc;
+    return rc;
 }
 
 /*----------------------------------------------------------------------------*/
