@@ -305,9 +305,26 @@ bigNumSetHex(bignum num, char* charVal)
 
         if (NULL != hexVal)
         {
+            unsigned char c;
+            unsigned char* temp = charVal + (chrLen);
+            unsigned char temChr2[2];
+
             for (unsigned int i = 0; i < hexLen; i++)
             {
-                unsigned char c = bnChr2ToByte_(charVal + (i * 2));
+                temp = temp-2;
+
+                if (temp >= charVal)
+                {
+                    temChr2[0] = temp[0];
+                    temChr2[1] = temp[1];
+                }
+                else
+                {
+                   temChr2[0] = charVal[0]; 
+                   temChr2[1] = '\0';
+                }
+
+                c = bnChr2ToByte_(temChr2);
                 hexVal[i] = c;
                 if (BN_OK != bnLastError_)
                 {

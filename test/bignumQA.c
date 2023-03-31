@@ -59,6 +59,9 @@ main(void)
         assert(bigNumSetHex(n2, "3aA") == BN_OK);
         assert(bigNumSetHex(n2, "44fF") == BN_OK);
         assert(bigNumSetHex(n2, "3456A") == BN_OK);
+        bigNumPrint(n2, 16 | BN_FLAG_PRINT_0X | BN_FLAG_PRINT_SPACE);
+        printf("\n---------------------------\n");
+
         assert(bigNumSetHex(n2, "68844DCBD44DDCBD") == BN_ERR_OVERFLOW);
         assert(bigNumSetHex(n2,
                             "AA4564564646464656456444fF"
@@ -328,18 +331,41 @@ main(void)
                 assert(bigNumCmp(n3, n4) == 0);
 */
 
-        assert(bigNumSetHex(n2, "68844DCBD44DDCBD") == BN_OK);
+        assert(bigNumSetHex(n2, "68844DCBD44DDC") == BN_OK);
         bigNumPrint(n2, 16 | BN_FLAG_PRINT_0X | BN_FLAG_PRINT_SPACE);
         printf("\n---------------------------\n");
 
         assert(bigNumSetHex(n2,
+                            "4564564646464656456444fF"
                             "AA4564564646464656456444fF"
                             "AA4564564646464656456444fF"
                             "AA4564564646464656456444fF"
                             "AA4564564646464656456444fF"
                             "AA4564564646464656456444fF"
                             "AA4564564646464656456444fF"
-                            "AA4564564646464656456444fF") == BN_ERR);
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF"
+                            "AA4564564646464656456444fF") == BN_OK);
         bigNumPrint(n2, 16 | BN_FLAG_PRINT_0X | BN_FLAG_PRINT_SPACE);
         printf("\n---------------------------\n");
 
