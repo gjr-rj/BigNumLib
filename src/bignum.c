@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <assert.h>
 
 #include <bignum.h>
 
@@ -13,6 +14,7 @@
 #define NUM_CHAR_TO_REPRESENT_HEX 2
 #define NUM_CHAR_TO_REPRESENT_BIN 8
 
+typedef bignumerr_t (*bnFuncAddCharToByte)(unsigned char*, char);
 typedef struct _bignumlist
 {
     bignum val;
@@ -20,8 +22,15 @@ typedef struct _bignumlist
 
 } bignumlist, *pbignumlist;
 
+typedef struct
+{
+    int numCharPerByte;
+    bnFuncAddCharToByte callbackToConvert;
+} bignumopinfo;
+
 static bignumlist bnTop = {NULL, NULL};
 static bignumerr_t bnLastError_ = BN_OK;
+static bignumopinfo bnInfo_ = {0, NULL};
 
 static unsigned int numBits_ = 0;
 
@@ -60,10 +69,60 @@ bnLenInBytesOf_(unsigned int chrLen, int nCharPerByte)
 {
     unsigned int rc = 0;
 
-    rc = (chrLen / nCharPerByte);
-    if (chrLen % nCharPerByte > 0)
+    if ((chrLen > 0) && (nCharPerByte > 0))
     {
-        rc++;
+        rc = (chrLen / nCharPerByte);
+        if (chrLen % nCharPerByte > 0)
+        {
+            rc++;
+        }
+    }
+
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+static bignumerr_t
+bnAddCharHexInByte_(unsigned char* byte, char charVal)
+{
+    bignumerr_t rc = BN_OK;
+
+    assert(NULL != byte);
+
+    if (IS_DIGIT(charVal))
+    {
+        *byte |= DIGIT_TO_HEX(charVal);
+    }
+    else if (IS_AF(charVal))
+    {
+        *byte |= AF_TO_HEX(charVal);
+    }
+    else if (IS_af(charVal))
+    {
+        *byte |= af_TO_HEX(charVal);
+    }
+    else
+    {
+        rc = BN_ERR;
+    }
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+static bignumerr_t
+bnAddCharBinInByte_(unsigned char* byte, char charVal)
+{
+    bignumerr_t rc = BN_OK;
+
+    assert(NULL != byte);
+
+    if (charVal == '1')
+    {
+        *byte |= 0x01;
+    }
+    else if (charVal != '0')
+    {
+        rc = BN_ERR;
     }
 
     return rc;
@@ -71,61 +130,14 @@ bnLenInBytesOf_(unsigned int chrLen, int nCharPerByte)
 
 /*----------------------------------------------------------------------------*/
 static unsigned char
-bn2ChrToByte_(char* charVal)
-{
-    bignumerr_t rc = BN_OK;
-    unsigned char hex = 0;
-
-    if (0 == charVal[0])
-    {
-        rc = BN_ERR;
-    }
-
-    if (BN_OK == rc)
-    {
-        for (int i = 0; i < NUM_CHAR_TO_REPRESENT_HEX; i++)
-        {
-            if (0 == charVal[i])
-            {
-                continue;
-            }
-
-            if (1 == i)
-            {
-                hex = hex << 4;
-            }
-
-            if (IS_DIGIT(charVal[i]))
-            {
-                hex |= DIGIT_TO_HEX(charVal[i]);
-            }
-            else if (IS_AF(charVal[i]))
-            {
-                hex |= AF_TO_HEX(charVal[i]);
-            }
-            else if (IS_af(charVal[i]))
-            {
-                hex |= af_TO_HEX(charVal[i]);
-            }
-            else
-            {
-                rc = BN_ERR;
-                break;
-            }
-        }
-    }
-
-    bnLastError_ = rc;
-    return hex;
-}
-
-/*----------------------------------------------------------------------------*/
-static unsigned char
-bn8ChrToByte_(char* charVal)
+bnChrToByte_(char* charVal)
 {
     bignumerr_t rc = BN_OK;
     unsigned char byte = 0;
 
+    assert(NULL != charVal);
+    assert(NULL != bnInfo_.callbackToConvert);
+
     if (0 == charVal[0])
     {
         rc = BN_ERR;
@@ -133,22 +145,19 @@ bn8ChrToByte_(char* charVal)
 
     if (BN_OK == rc)
     {
-        for (int i = 0; i < NUM_CHAR_TO_REPRESENT_BIN; i++)
+        for (int i = 0; i < bnInfo_.numCharPerByte; i++)
         {
             if (0 == charVal[i])
             {
                 break;
             }
 
-            byte = byte << 1;
+            byte = byte << (BITS_PER_BYTE / bnInfo_.numCharPerByte);
 
-            if (charVal[i] == '1')
+            rc = bnInfo_.callbackToConvert(&byte, charVal[i]);
+
+            if (BN_OK != rc)
             {
-                byte |= 0x01;
-            }
-            else if (charVal[i] != '0')
-            {
-                rc = BN_ERR;
                 break;
             }
         }
@@ -160,7 +169,7 @@ bn8ChrToByte_(char* charVal)
 
 /*----------------------------------------------------------------------------*/
 static void
-copyPaddingLeftChar_(unsigned char* Chr8Bytes,
+copyPaddingLeftChar_(unsigned char* ChrBytes,
                      char* charVal,
                      unsigned int chrLen,
                      unsigned int pos,
@@ -169,6 +178,9 @@ copyPaddingLeftChar_(unsigned char* Chr8Bytes,
     unsigned int index;
     char* temp;
     unsigned int offsetWrite = pos * numChar;
+
+    assert(NULL != ChrBytes);
+    assert(NULL != charVal);
 
     if (offsetWrite < chrLen)
     {
@@ -179,70 +191,45 @@ copyPaddingLeftChar_(unsigned char* Chr8Bytes,
             temp = (charVal + (index - numChar));
             for (int i = 0; i < numChar; i++)
             {
-                Chr8Bytes[i] = temp[i];
+                ChrBytes[i] = temp[i];
             }
         }
         else
         {
             for (unsigned int i = 0; i < index; i++)
             {
-                Chr8Bytes[i] = charVal[i];
+                ChrBytes[i] = charVal[i];
             }
 
-            Chr8Bytes[index] = '\0';
+            ChrBytes[index] = '\0';
         }
     }
     else
     {
-        Chr8Bytes[0] = '\0';
+        ChrBytes[0] = '\0';
     }
 }
 
 /*----------------------------------------------------------------------------*/
 static bignumerr_t
-bnStrHexToByte_(unsigned char* ByteVal,
-                unsigned int ByteLen,
-                char* charVal,
-                unsigned int chrLen)
+bnStrToByte_(unsigned char* ByteVal,
+             unsigned int ByteLen,
+             char* charVal,
+             unsigned int chrLen)
 {
     unsigned char c;
-    unsigned char tempChr2[NUM_CHAR_TO_REPRESENT_HEX];
+    unsigned char tempChr[BITS_PER_BYTE];
     bignumerr_t rc = BN_OK;
+
+    assert(NULL != ByteVal);
+    assert(NULL != charVal);
 
     for (unsigned int i = 0; i < ByteLen; i++)
     {
         copyPaddingLeftChar_(
-                tempChr2, charVal, chrLen, i, NUM_CHAR_TO_REPRESENT_HEX);
+                tempChr, charVal, chrLen, i, bnInfo_.numCharPerByte);
 
-        c = bn2ChrToByte_(tempChr2);
-        ByteVal[i] = c;
-        if (BN_OK != bnLastError_)
-        {
-            rc = bnLastError_;
-            break;
-        }
-    }
-
-    return rc;
-}
-
-/*----------------------------------------------------------------------------*/
-static bignumerr_t
-bnStrBinToByte_(unsigned char* ByteVal,
-                unsigned int ByteLen,
-                char* charVal,
-                unsigned int chrLen)
-{
-    unsigned char c;
-    unsigned char tempChr8[NUM_CHAR_TO_REPRESENT_BIN];
-    bignumerr_t rc = BN_OK;
-
-    for (unsigned int i = 0; i < ByteLen; i++)
-    {
-        copyPaddingLeftChar_(
-                tempChr8, charVal, chrLen, i, NUM_CHAR_TO_REPRESENT_BIN);
-
-        c = bn8ChrToByte_(tempChr8);
+        c = bnChrToByte_(tempChr);
         ByteVal[i] = c;
         if (BN_OK != bnLastError_)
         {
@@ -300,6 +287,7 @@ bnPutBytes_(bignum num, unsigned char* byteChar, unsigned int size)
     unsigned numBytes = bnGetSizeInBytes_();
     bignumerr_t rc = bnValidateInitialize_(num);
 
+    assert(NULL != byteChar);
     if (size > numBytes)
     {
         rc = BN_ERR_OVERFLOW;
@@ -309,6 +297,51 @@ bnPutBytes_(bignum num, unsigned char* byteChar, unsigned int size)
     {
         memset(num, 0, numBytes);
         memcpy(num, byteChar, size);
+    }
+
+    bnLastError_ = rc;
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+static bignumerr_t
+bnSetGeneric(bignum num, char* charVal)
+{
+    bignumerr_t rc = BN_OK;
+    unsigned char* byteVal;
+    unsigned numBytes = bnGetSizeInBytes_();
+    unsigned int chrLen = bnStrLenOf_(charVal);
+    unsigned int byteLen = bnLenInBytesOf_(chrLen, bnInfo_.numCharPerByte);
+
+    if ((0 >= chrLen) || (0 >= byteLen))
+    {
+        rc = BN_ERR;
+    }
+
+    if (byteLen > numBytes)
+    {
+        rc = BN_ERR_OVERFLOW;
+    }
+
+    if (BN_OK == rc)
+    {
+        byteVal = (unsigned char*)malloc(byteLen);
+
+        if (NULL != byteVal)
+        {
+            rc = bnStrToByte_(byteVal, byteLen, charVal, chrLen);
+
+            if (BN_OK == rc)
+            {
+                rc = bnPutBytes_(num, byteVal, byteLen);
+            }
+
+            free(byteVal);
+        }
+        else
+        {
+            rc = BN_ERR_NOT_MEM;
+        }
     }
 
     bnLastError_ = rc;
@@ -450,42 +483,10 @@ bigNumSetInt(bignum num, unsigned int intVal)
 bignumerr_t
 bigNumSetHex(bignum num, char* charVal)
 {
-    bignumerr_t rc = BN_OK;
-    unsigned char* byteVal;
-    unsigned numBytes = bnGetSizeInBytes_();
-    unsigned int chrLen = bnStrLenOf_(charVal);
-    unsigned int byteLen = bnLenInBytesOf_(chrLen, NUM_CHAR_TO_REPRESENT_HEX);
-
-    if (0 >= chrLen)
-    {
-        rc = BN_ERR;
-    }
-
-    if (byteLen > numBytes)
-    {
-        rc = BN_ERR_OVERFLOW;
-    }
-
-    if (BN_OK == rc)
-    {
-        byteVal = (unsigned char*)malloc(byteLen);
-
-        if (NULL != byteVal)
-        {
-            rc = bnStrHexToByte_(byteVal, byteLen, charVal, chrLen);
-
-            if (BN_OK == rc)
-            {
-                rc = bnPutBytes_(num, byteVal, byteLen);
-            }
-
-            free(byteVal);
-        }
-        else
-        {
-            rc = BN_ERR_NOT_MEM;
-        }
-    }
+    bignumerr_t rc;
+    bnInfo_.numCharPerByte = NUM_CHAR_TO_REPRESENT_HEX;
+    bnInfo_.callbackToConvert = bnAddCharHexInByte_;
+    rc = bnSetGeneric(num, charVal);
 
     bnLastError_ = rc;
     return rc;
@@ -495,42 +496,10 @@ bigNumSetHex(bignum num, char* charVal)
 bignumerr_t
 bigNumSetBin(bignum num, char* charVal)
 {
-    bignumerr_t rc = BN_OK;
-    unsigned char* byteVal;
-    unsigned numBytes = bnGetSizeInBytes_();
-    unsigned int chrLen = bnStrLenOf_(charVal);
-    unsigned int byteLen = bnLenInBytesOf_(chrLen, NUM_CHAR_TO_REPRESENT_BIN);
-
-    if (0 >= chrLen)
-    {
-        rc = BN_ERR;
-    }
-
-    if (byteLen > numBytes)
-    {
-        rc = BN_ERR_OVERFLOW;
-    }
-
-    if (BN_OK == rc)
-    {
-        byteVal = (unsigned char*)malloc(byteLen);
-
-        if (NULL != byteVal)
-        {
-            rc = bnStrBinToByte_(byteVal, byteLen, charVal, chrLen);
-
-            if (BN_OK == rc)
-            {
-                rc = bnPutBytes_(num, byteVal, byteLen);
-            }
-
-            free(byteVal);
-        }
-        else
-        {
-            rc = BN_ERR_NOT_MEM;
-        }
-    }
+    bignumerr_t rc;
+    bnInfo_.numCharPerByte = NUM_CHAR_TO_REPRESENT_BIN;
+    bnInfo_.callbackToConvert = bnAddCharBinInByte_;
+    rc = bnSetGeneric(num, charVal);
 
     bnLastError_ = rc;
     return rc;
