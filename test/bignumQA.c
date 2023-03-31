@@ -100,28 +100,35 @@ main(void)
 
         assert(bigNumSetInt(n1, 256) == BN_OK);
         assert(bigNumSetInt(n1, 256) == BN_OK);
+
+        assert(bigNumSetHex(n2, "10") == BN_OK);
+        assert(bigNumSetBin(n3, "1000") == BN_OK);
+        bigNumPrint(n3,
+                    BN_FLAG_PRINT_SPACE | BN_FLAG_PRINT_0X |
+                            BN_FLAG_PRINT_BREAK);
+
+        assert(bigNumSet(n4, n3) == BN_OK);
         /*
-                        assert(bigNumSetHex(n2, "10") == BN_OK);
-                        assert(bigNumSetBit(n3, "1000") == BN_OK);
-                        assert(bigNumSet(n4, n3) == BN_OK);
+                                assert(bigNumCmpInt(n1, 16) == 0);
+                                assert(bigNumCmpInt(n1, 16) == 0);
+                                assert(bigNumCmpInt(n1, 8) == 0);
+                                assert(bigNumCmpInt(n1, 8) == 0);
 
-                        assert(bigNumCmpInt(n1, 16) == 0);
-                        assert(bigNumCmpInt(n1, 16) == 0);
-                        assert(bigNumCmpInt(n1, 8) == 0);
-                        assert(bigNumCmpInt(n1, 8) == 0);
+                                assert(bigNumCmpInt(n1, 10) == 1);
+                                assert(bigNumCmpInt(n1, 10) == 1);
+                                assert(bigNumCmpInt(n1, 16) == -1);
+                                assert(bigNumCmpInt(n1, 16) == -1);
 
-                        assert(bigNumCmpInt(n1, 10) == 1);
-                        assert(bigNumCmpInt(n1, 10) == 1);
-                        assert(bigNumCmpInt(n1, 16) == -1);
-                        assert(bigNumCmpInt(n1, 16) == -1);
-
-                        assert(bigNumCmpHex(n1, "10") == 0);
-                        assert(bigNumCmpBit(n2, "10000") == 0);
-                        assert(bigNumCmp(n3, n4) == 0);
-
-                        assert(bigNumSetHex(n2, "A3") == BN_OK);
-                        assert(bigNumSetBit(n3, "10001") == BN_OK);
+                                assert(bigNumCmpHex(n1, "10") == 0);
+                                assert(bigNumCmpBit(n2, "10000") == 0);
+                                assert(bigNumCmp(n3, n4) == 0);
         */
+        assert(bigNumSetHex(n2, "A3") == BN_OK);
+        assert(bigNumSetBin(n3, "10001") == BN_OK);
+        bigNumPrint(n3,
+                    BN_FLAG_PRINT_SPACE | BN_FLAG_PRINT_0X |
+                            BN_FLAG_PRINT_BREAK);
+
         assert(bigNumSetInt(n2, 163) == 0);
         assert(bigNumSetInt(n3, 17) == 0);
 
@@ -191,28 +198,34 @@ main(void)
                             BN_FLAG_PRINT_BREAK);
         printf("\n---------------------------\n");
 
+        assert(bigNumSetHex(n2, "10") == BN_OK);
+        assert(bigNumSetBin(n3, "100011111111111111000") == BN_OK);
+        bigNumPrint(n3,
+                    BN_FLAG_PRINT_SPACE | BN_FLAG_PRINT_0X |
+                            BN_FLAG_PRINT_BREAK);
+
+        assert(bigNumSet(n4, n3) == BN_OK);
         /*
-            assert(bigNumSetHex(n2, "10") == BN_OK);
-            assert(bigNumSetBit(n3, "1000") == BN_OK);
-            assert(bigNumSet(n4, n3) == BN_OK);
+                    assert(bigNumCmpInt(n1, 16) == 0);
+                    assert(bigNumCmpInt(n1, 16) == 0);
+                    assert(bigNumCmpInt(n1, 8) == 0);
+                    assert(bigNumCmpInt(n1, 8) == 0);
 
-            assert(bigNumCmpInt(n1, 16) == 0);
-            assert(bigNumCmpInt(n1, 16) == 0);
-            assert(bigNumCmpInt(n1, 8) == 0);
-            assert(bigNumCmpInt(n1, 8) == 0);
+                    assert(bigNumCmpInt(n1, 10) == 1);
+                    assert(bigNumCmpInt(n1, 10) == 1);
+                    assert(bigNumCmpInt(n1, 16) == -1);
+                    assert(bigNumCmpInt(n1, 16) == -1);
 
-            assert(bigNumCmpInt(n1, 10) == 1);
-            assert(bigNumCmpInt(n1, 10) == 1);
-            assert(bigNumCmpInt(n1, 16) == -1);
-            assert(bigNumCmpInt(n1, 16) == -1);
+                    assert(bigNumCmpHex(n1, "10") == 0);
+                    assert(bigNumCmpBit(n2, "10000") == 0);
+                    assert(bigNumCmp(n3, n4) == 0);
+        */
+        assert(bigNumSetHex(n2, "A3") == BN_OK);
+        assert(bigNumSetBin(n3, "111111111111110001") == BN_OK);
+        bigNumPrint(n3,
+                    BN_FLAG_PRINT_SPACE | BN_FLAG_PRINT_0X |
+                            BN_FLAG_PRINT_BREAK);
 
-            assert(bigNumCmpHex(n1, "10") == 0);
-            assert(bigNumCmpBit(n2, "10000") == 0);
-            assert(bigNumCmp(n3, n4) == 0);
-
-            assert(bigNumSetHex(n2, "A3") == BN_OK);
-            assert(bigNumSetBit(n3, "10001") == BN_OK);
-*/
         assert(bigNumSetInt(n2, 163) == 0);
         assert(bigNumSetInt(n3, 17) == 0);
 
@@ -261,37 +274,44 @@ main(void)
                 assert(bigNumCmp(n3, n4) == 0);
 */
         assert(bigNumSetInt(n1, 83849) == BN_OK);
+
+        assert(bigNumSetHex(n2, "10") == BN_OK);
+        assert(bigNumSetBin(n3, "000010011110") == BN_OK);
+        bigNumPrint(n3,
+                    BN_FLAG_PRINT_SPACE | BN_FLAG_PRINT_0X |
+                            BN_FLAG_PRINT_BREAK);
+
+        assert(bigNumSet(n4, n3) == BN_OK);
         /*
-                        assert(bigNumSetHex(n2, "10") == BN_OK);
-                        assert(bigNumSetBit(n3, "1000") == BN_OK);
-                        assert(bigNumSet(n4, n3) == BN_OK);
+                                assert(bigNumCmpInt(n1, 16) == 0);
+                                assert(bigNumCmpInt(n1, 16) == 0);
+                                assert(bigNumCmpInt(n1, 8) == 0);
+                                assert(bigNumCmpInt(n1, 8) == 0);
 
-                        assert(bigNumCmpInt(n1, 16) == 0);
-                        assert(bigNumCmpInt(n1, 16) == 0);
-                        assert(bigNumCmpInt(n1, 8) == 0);
-                        assert(bigNumCmpInt(n1, 8) == 0);
+                                assert(bigNumCmpInt(n1, 10) == 1);
+                                assert(bigNumCmpInt(n1, 10) == 1);
+                                assert(bigNumCmpInt(n1, 16) == -1);
+                                assert(bigNumCmpInt(n1, 16) == -1);
 
-                        assert(bigNumCmpInt(n1, 10) == 1);
-                        assert(bigNumCmpInt(n1, 10) == 1);
-                        assert(bigNumCmpInt(n1, 16) == -1);
-                        assert(bigNumCmpInt(n1, 16) == -1);
-
-                        assert(bigNumCmpHex(n1, "10") == 0);
-                        assert(bigNumCmpBit(n2, "10000") == 0);
-                        assert(bigNumCmp(n3, n4) == 0);
-
-                        assert(bigNumSetHex(n2, "A3") == BN_OK);
-                        assert(bigNumSetBit(n3, "10001") == BN_OK);
+                                assert(bigNumCmpHex(n1, "10") == 0);
+                                assert(bigNumCmpBit(n2, "10000") == 0);
+                                assert(bigNumCmp(n3, n4) == 0);
         */
+        assert(bigNumSetHex(n2, "A3") == BN_OK);
+        assert(bigNumSetBin(n3, "10001") == BN_OK);
+
         assert(bigNumSetInt(n2, 163) == 0);
         assert(bigNumSetInt(n3, 17) == 0);
 
         assert(bigNumInit(32) == BN_ERR_ALREADY_INIT);
         assert(bigNumInit(64) == BN_ERR_ALREADY_INIT);
-        /*
-                        assert(bigNumSetHex(n2, "1g") == BN_ERR);
-                        assert(bigNumSetBit(n3, "1020") == BN_ERR);
-                */
+
+        assert(bigNumSetHex(n2, "1g") == BN_ERR);
+        assert(bigNumSetBin(n3, "1020") == BN_ERR);
+        bigNumPrint(n3,
+                    BN_FLAG_PRINT_SPACE | BN_FLAG_PRINT_0X |
+                            BN_FLAG_PRINT_BREAK);
+
         n1 = bigNumNew();
         err = bigNumLastError();
         assert(BN_OK == err);
@@ -390,37 +410,44 @@ main(void)
                     BN_FLAG_PRINT_SPACE | BN_FLAG_PRINT_0X |
                             BN_FLAG_PRINT_BREAK);
         printf("\n---------------------------\n");
+
+        assert(bigNumSetHex(n2, "10") == BN_OK);
+        assert(bigNumSetBin(n3,
+                            "10111111111111111111111111111100000000000000000000"
+                            "00000111111111111111111111000000000000000000000001"
+                            "11111111111111111111111100") == BN_OK);
+        bigNumPrint(n3,
+                    BN_FLAG_PRINT_SPACE | BN_FLAG_PRINT_0X |
+                            BN_FLAG_PRINT_BREAK);
+
+        assert(bigNumSet(n4, n3) == BN_OK);
         /*
-                        assert(bigNumSetHex(n2, "10") == BN_OK);
-                        assert(bigNumSetBit(n3, "1000") == BN_OK);
-                        assert(bigNumSet(n4, n3) == BN_OK);
+                                assert(bigNumCmpInt(n1, 16) == 0);
+                                assert(bigNumCmpInt(n1, 16) == 0);
+                                assert(bigNumCmpInt(n1, 8) == 0);
+                                assert(bigNumCmpInt(n1, 8) == 0);
 
-                        assert(bigNumCmpInt(n1, 16) == 0);
-                        assert(bigNumCmpInt(n1, 16) == 0);
-                        assert(bigNumCmpInt(n1, 8) == 0);
-                        assert(bigNumCmpInt(n1, 8) == 0);
+                                assert(bigNumCmpInt(n1, 10) == 1);
+                                assert(bigNumCmpInt(n1, 10) == 1);
+                                assert(bigNumCmpInt(n1, 16) == -1);
+                                assert(bigNumCmpInt(n1, 16) == -1);
 
-                        assert(bigNumCmpInt(n1, 10) == 1);
-                        assert(bigNumCmpInt(n1, 10) == 1);
-                        assert(bigNumCmpInt(n1, 16) == -1);
-                        assert(bigNumCmpInt(n1, 16) == -1);
-
-                        assert(bigNumCmpHex(n1, "10") == 0);
-                        assert(bigNumCmpBit(n2, "10000") == 0);
-                        assert(bigNumCmp(n3, n4) == 0);
-
-                        assert(bigNumSetHex(n2, "A3") == BN_OK);
-                        assert(bigNumSetBit(n3, "10001") == BN_OK);
+                                assert(bigNumCmpHex(n1, "10") == 0);
+                                assert(bigNumCmpBit(n2, "10000") == 0);
+                                assert(bigNumCmp(n3, n4) == 0);
         */
+        assert(bigNumSetHex(n2, "A3") == BN_OK);
+        assert(bigNumSetBin(n3, "10001") == BN_OK);
+
         assert(bigNumSetInt(n2, 163) == 0);
         assert(bigNumSetInt(n3, 17) == 0);
 
         assert(bigNumInit(32) == BN_ERR_ALREADY_INIT);
         assert(bigNumInit(64) == BN_ERR_ALREADY_INIT);
-        /*
-                        assert(bigNumSetHex(n2, "1g") == BN_ERR);
-                        assert(bigNumSetBit(n3, "1020") == BN_ERR);
-                */
+
+        assert(bigNumSetHex(n2, "1g") == BN_ERR);
+        assert(bigNumSetBin(n3, "1020") == BN_ERR);
+
         n1 = bigNumNew();
         err = bigNumLastError();
         assert(BN_OK == err);
