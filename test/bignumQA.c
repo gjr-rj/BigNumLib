@@ -331,12 +331,12 @@ main(void)
                 assert(bigNumCmp(n3, n4) == 0);
 */
 
-        assert(bigNumSetHex(n2, "68844DCBD44DDC") == BN_OK);
+        assert(bigNumSetHex(n2, "8844DCBD44DDC") == BN_OK);
         bigNumPrint(n2, 16 | BN_FLAG_PRINT_0X | BN_FLAG_PRINT_SPACE);
         printf("\n---------------------------\n");
 
         assert(bigNumSetHex(n2,
-                            "4564564646464656456444fF"
+                            "564564646464656456444fF"
                             "AA4564564646464656456444fF"
                             "AA4564564646464656456444fF"
                             "AA4564564646464656456444fF"

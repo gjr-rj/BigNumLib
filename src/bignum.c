@@ -31,9 +31,34 @@ static unsigned int numBits_ = 0;
 #define IS_af(n)     ((n >= 'a') && (n <= 'f'))
 #define af_TO_HEX(n) (n - 'a' + 10)
 
+static unsigned int bnStrLenOf_(char* charVal);
+static unsigned int bnHexLenOf_(unsigned int chrLen);
+static unsigned char bn2ChrToByte_(char* charVal);
+
 /*----------------------------------------------------------------------------*/
-unsigned char
-bnChr2ToByte_(char* charVal)
+static unsigned int
+bnStrLenOf_(char* charVal)
+{
+    unsigned int rc = 0;
+
+    if (NULL != charVal)
+    {
+        rc = (unsigned int)strlen(charVal);
+    }
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+static unsigned int
+bnHexLenOf_(unsigned int chrLen)
+{
+    unsigned int rc = (chrLen < 2) ? 1 : (chrLen / 2) + (chrLen % 2);
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+static unsigned char
+bn2ChrToByte_(char* charVal)
 {
     bignumerr_t rc = BN_OK;
     unsigned char hex = 0;
@@ -79,6 +104,65 @@ bnChr2ToByte_(char* charVal)
 
     bnLastError_ = rc;
     return hex;
+}
+
+/*----------------------------------------------------------------------------*/
+static void
+copyPaddingLeft2Char_(unsigned char* Chr2Bytes,
+                      char* charVal,
+                      unsigned int chrLen,
+                      unsigned int offsetWrite)
+{
+    unsigned int index;
+    char* temp;
+
+    if (offsetWrite < chrLen)
+    {
+        index = chrLen - offsetWrite;
+
+        if (index > 1)
+        {
+            temp = (charVal + (index - 2));
+            Chr2Bytes[0] = temp[0];
+            Chr2Bytes[1] = temp[1];
+        }
+        else
+        {
+            Chr2Bytes[0] = charVal[0];
+            Chr2Bytes[1] = '\0';
+        }
+    }
+    else
+    {
+        Chr2Bytes[0] = '\0';
+    }
+}
+
+/*----------------------------------------------------------------------------*/
+static bignumerr_t
+bnStrHexToByte_(unsigned char* ByteVal,
+            unsigned int ByteLen,
+            char* charVal,
+            unsigned int chrLen)
+{
+    unsigned char c;
+    unsigned char tempChr2[2];
+    bignumerr_t rc = BN_OK;
+
+    for (unsigned int i = 0; i < ByteLen; i++)
+    {
+        copyPaddingLeft2Char_(tempChr2, charVal, chrLen, i * 2);
+
+        c = bn2ChrToByte_(tempChr2);
+        ByteVal[i] = c;
+        if (BN_OK != bnLastError_)
+        {
+            rc = bnLastError_;
+            break;
+        }
+    }
+
+    return rc;
 }
 
 /*----------------------------------------------------------------------------*/
@@ -278,67 +362,35 @@ bignumerr_t
 bigNumSetHex(bignum num, char* charVal)
 {
     bignumerr_t rc = BN_OK;
-    unsigned char* hexVal;
+    unsigned char* byteVal;
     unsigned numBytes = bnGetSizeInBytes_();
-    unsigned int chrLen;
-    unsigned int hexLen;
+    unsigned int chrLen = bnStrLenOf_(charVal);
+    unsigned int byteLen = bnHexLenOf_(chrLen);
 
-    if (NULL == charVal)
+    if (0 >= chrLen)
     {
         rc = BN_ERR;
     }
 
-    if (BN_OK == rc)
+    if (byteLen > numBytes)
     {
-        chrLen = (unsigned int)strlen(charVal);
-        hexLen = (chrLen < 2) ? 1 : (chrLen / 2) + (chrLen % 2);
-
-        if (hexLen > numBytes)
-        {
-            rc = BN_ERR_OVERFLOW;
-        }
+        rc = BN_ERR_OVERFLOW;
     }
 
     if (BN_OK == rc)
     {
-        hexVal = (unsigned char*)malloc(hexLen);
+        byteVal = (unsigned char*)malloc(byteLen);
 
-        if (NULL != hexVal)
+        if (NULL != byteVal)
         {
-            unsigned char c;
-            unsigned char* temp = charVal + (chrLen);
-            unsigned char temChr2[2];
-
-            for (unsigned int i = 0; i < hexLen; i++)
-            {
-                temp = temp-2;
-
-                if (temp >= charVal)
-                {
-                    temChr2[0] = temp[0];
-                    temChr2[1] = temp[1];
-                }
-                else
-                {
-                   temChr2[0] = charVal[0]; 
-                   temChr2[1] = '\0';
-                }
-
-                c = bnChr2ToByte_(temChr2);
-                hexVal[i] = c;
-                if (BN_OK != bnLastError_)
-                {
-                    rc = bnLastError_;
-                    break;
-                }
-            }
+            rc = bnStrHexToByte_(byteVal, byteLen, charVal, chrLen);
 
             if (BN_OK == rc)
             {
-                rc = bnPutBytes_(num, hexVal, hexLen);
+                rc = bnPutBytes_(num, byteVal, byteLen);
             }
 
-            free(hexVal);
+            free(byteVal);
         }
         else
         {
