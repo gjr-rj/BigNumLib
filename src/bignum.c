@@ -14,7 +14,15 @@
 #define NUM_CHAR_TO_REPRESENT_HEX 2
 #define NUM_CHAR_TO_REPRESENT_BIN 8
 
+#define LOCAL_ERROR                (-99)
+#define PARAM1_GRATER_THEN_PARAM2  1
+#define PARAM1_SMALLER_THEN_PARAM2 (-1)
+#define PARAM1_EQUAL_PARAM2        0
+
 typedef bignumerr_t (*bnFuncAddCharToByte)(unsigned char*, char);
+typedef bignumerr_t (*bnFuncActionBigNumToByte)(bignum,
+                                                unsigned char*,
+                                                unsigned int);
 
 typedef struct _bignumlocal
 {
@@ -32,11 +40,12 @@ typedef struct
 {
     int numCharPerByte;
     bnFuncAddCharToByte callbackToConvert;
+    bnFuncActionBigNumToByte callbackToAction;
 } bignumopinfo;
 
 static bignumlist bnTop = {NULL, NULL};
 static bignumerr_t bnLastError_ = BN_OK;
-static bignumopinfo bnInfo_ = {0, NULL};
+static bignumopinfo bnInfo_ = {0, NULL, NULL};
 
 static unsigned int numBits_ = 0;
 
@@ -49,12 +58,79 @@ static unsigned int numBits_ = 0;
 #define IS_af(n)     ((n >= 'a') && (n <= 'f'))
 #define af_TO_HEX(n) (n - 'a' + 10)
 
+static bignumerr_t bnValidateInitialize_(bignum num);
 static unsigned int bnStrLenOf_(char* charVal);
-static unsigned int bnHexLenOf_(unsigned int chrLen);
-static unsigned char bn2ChrToByte_(char* charVal);
-static bignumerr_t bnPutBytes_(bignum num,
-                               unsigned char* byteChar,
-                               unsigned int size);
+static unsigned int bnGetSizeInBytes_(void);
+static unsigned int bnStrLenOf_(char* charVal);
+static unsigned int bnLenInBytesOf_(unsigned int chrLen, int nCharPerByte);
+
+/*----------------------------------------------------------------------------*/
+static bignumerr_t
+bnValidateToContinue_(bignum num, char* charVal, int numCharPerByte)
+{
+    bignumerr_t rc = BN_OK;
+    unsigned numBytes = bnGetSizeInBytes_();
+    unsigned int chrLen = bnStrLenOf_(charVal);
+    unsigned int byteLen = bnLenInBytesOf_(chrLen, numCharPerByte);
+
+    assert(NULL != num);
+
+    if ((0 >= chrLen) || (0 >= byteLen))
+    {
+        rc = BN_ERR_INVALID_VALUE;
+    }
+
+    if (byteLen > numBytes)
+    {
+        rc = BN_ERR_OVERFLOW;
+    }
+
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+static int
+bnIsToCompare_(unsigned int size1, unsigned int size2)
+{
+    int rc = PARAM1_EQUAL_PARAM2;
+    if (size1 > size2)
+    {
+        rc = PARAM1_GRATER_THEN_PARAM2;
+    }
+    else if (size1 < size2)
+    {
+        rc = PARAM1_SMALLER_THEN_PARAM2;
+    }
+
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+static bignumerr_t
+bnCompareBigNumBytes_(bignum num, unsigned char* bytes, unsigned int size)
+{
+    int rc = PARAM1_EQUAL_PARAM2;
+    bignumlocal bnLocal = (bignumlocal)(num);
+
+    assert(BN_OK == bnValidateInitialize_(num));
+    assert(NULL != bytes);
+
+    for (unsigned int i = size; i > 0; i--)
+    {
+        if (bnLocal->bytes[i - 1] > bytes[i - 1])
+        {
+            rc = PARAM1_GRATER_THEN_PARAM2;
+            break;
+        }
+        else if (bnLocal->bytes[i - 1] < bytes[i - 1])
+        {
+            rc = PARAM1_SMALLER_THEN_PARAM2;
+            break;
+        }
+    }
+
+    return rc;
+}
 
 /*----------------------------------------------------------------------------*/
 static unsigned int
@@ -109,7 +185,7 @@ bnAddCharHexInByte_(unsigned char* byte, char charVal)
     }
     else
     {
-        rc = BN_ERR;
+        rc = BN_ERR_INVALID_VALUE;
     }
     return rc;
 }
@@ -128,7 +204,7 @@ bnAddCharBinInByte_(unsigned char* byte, char charVal)
     }
     else if (charVal != '0')
     {
-        rc = BN_ERR;
+        rc = BN_ERR_INVALID_VALUE;
     }
 
     return rc;
@@ -146,7 +222,7 @@ bnChrToByte_(char* charVal)
 
     if (0 == charVal[0])
     {
-        rc = BN_ERR;
+        rc = BN_ERR_INVALID_VALUE;
     }
 
     if (BN_OK == rc)
@@ -314,23 +390,13 @@ bnPutBytes_(bignum num, unsigned char* byteChar, unsigned int size)
 
 /*----------------------------------------------------------------------------*/
 static bignumerr_t
-bnSetGeneric(bignum num, char* charVal)
+bnGeneric(bignum num, char* charVal)
 {
-    bignumerr_t rc = BN_OK;
+    bignumerr_t rc =
+            bnValidateToContinue_(num, charVal, bnInfo_.numCharPerByte);
     unsigned char* byteVal;
-    unsigned numBytes = bnGetSizeInBytes_();
     unsigned int chrLen = bnStrLenOf_(charVal);
     unsigned int byteLen = bnLenInBytesOf_(chrLen, bnInfo_.numCharPerByte);
-
-    if ((0 >= chrLen) || (0 >= byteLen))
-    {
-        rc = BN_ERR;
-    }
-
-    if (byteLen > numBytes)
-    {
-        rc = BN_ERR_OVERFLOW;
-    }
 
     if (BN_OK == rc)
     {
@@ -342,7 +408,7 @@ bnSetGeneric(bignum num, char* charVal)
 
             if (BN_OK == rc)
             {
-                rc = bnPutBytes_(num, byteVal, byteLen);
+                rc = bnInfo_.callbackToAction(num, byteVal, byteLen);
             }
 
             free(byteVal);
@@ -496,7 +562,8 @@ bigNumSetHex(bignum num, char* charVal)
     bignumerr_t rc;
     bnInfo_.numCharPerByte = NUM_CHAR_TO_REPRESENT_HEX;
     bnInfo_.callbackToConvert = bnAddCharHexInByte_;
-    rc = bnSetGeneric(num, charVal);
+    bnInfo_.callbackToAction = bnPutBytes_;
+    rc = bnGeneric(num, charVal);
 
     bnLastError_ = rc;
     return rc;
@@ -509,7 +576,8 @@ bigNumSetBin(bignum num, char* charVal)
     bignumerr_t rc;
     bnInfo_.numCharPerByte = NUM_CHAR_TO_REPRESENT_BIN;
     bnInfo_.callbackToConvert = bnAddCharBinInByte_;
-    rc = bnSetGeneric(num, charVal);
+    bnInfo_.callbackToAction = bnPutBytes_;
+    rc = bnGeneric(num, charVal);
 
     bnLastError_ = rc;
     return rc;
@@ -517,19 +585,20 @@ bigNumSetBin(bignum num, char* charVal)
 
 /*----------------------------------------------------------------------------*/
 bignumerr_t
-bigNumSet(bignum num, bignum bnVal)
+bigNumSet(bignum num1, bignum num2)
 {
-    unsigned numBytes = bnGetSizeInBytes_();
-    bignumerr_t rc = bnValidateInitialize_(num);
+    unsigned int numBytes = bnGetSizeInBytes_();
+    bignumerr_t rc = bnValidateInitialize_(num1);
 
     if (BN_OK == rc)
     {
-        rc = bnValidateInitialize_(bnVal);
+        rc = bnValidateInitialize_(num2);
     }
 
     if (BN_OK == rc)
     {
-        memcpy(num, bnVal, numBytes);
+        unsigned int numBytesTot = numBytes + sizeof(unsigned int);
+        memcpy(num1, num2, numBytesTot);
     }
 
     bnLastError_ = rc;
@@ -583,4 +652,118 @@ bigNumPrint(bignum num, BN_PRINT_FLAGS flag)
             }
         }
     }
+}
+
+/*----------------------------------------------------------------------------*/
+int
+bigNumCmpInt(bignum num, unsigned int intVal)
+{
+    bnLastError_ = bnValidateInitialize_(num);
+    int rc = LOCAL_ERROR;
+
+    if (BN_OK == bnLastError_)
+    {
+        bignumlocal bnLocal = (bignumlocal)(num);
+        if (bnLocal->numBytes <= sizeof(unsigned int))
+        {
+            unsigned int* byteInt = (unsigned int*)(&(bnLocal->bytes));
+            if (*byteInt == intVal)
+            {
+                rc = PARAM1_EQUAL_PARAM2;
+            }
+            else if (*byteInt > intVal)
+            {
+                rc = PARAM1_GRATER_THEN_PARAM2;
+            }
+            else
+            {
+                rc = PARAM1_SMALLER_THEN_PARAM2;
+            }
+        }
+        else
+        {
+            rc = PARAM1_GRATER_THEN_PARAM2;
+        }
+    }
+
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+int
+bigNumCmp(bignum num1, bignum num2)
+{
+    bnLastError_ = bnValidateInitialize_(num1);
+    if (BN_OK == bnLastError_)
+    {
+        bnLastError_ = bnValidateInitialize_(num2);
+    }
+
+    int rc = LOCAL_ERROR;
+
+    if (BN_OK == bnLastError_)
+    {
+        bignumlocal bnLocal1 = (bignumlocal)(num1);
+        bignumlocal bnLocal2 = (bignumlocal)(num2);
+
+        rc = bnIsToCompare_(bnLocal1->numBytes, bnLocal2->numBytes);
+
+        if (0 == rc)
+        {
+            rc = (int)bnCompareBigNumBytes_(
+                    num1, bnLocal2->bytes, bnLocal1->numBytes);
+        }
+    }
+
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+int
+bigNumCmpHex(bignum num, char* charVal)
+{
+    int rc;
+
+    bnLastError_ =
+            bnValidateToContinue_(num, charVal, NUM_CHAR_TO_REPRESENT_HEX);
+    if (BN_OK == bnLastError_)
+    {
+        bnLastError_ = bnValidateInitialize_(num);
+    }
+
+    if (BN_OK == bnLastError_)
+    {
+        bnInfo_.numCharPerByte = NUM_CHAR_TO_REPRESENT_HEX;
+        bnInfo_.callbackToConvert = bnAddCharHexInByte_;
+        bnInfo_.callbackToAction = bnCompareBigNumBytes_;
+        bnLastError_ = bnGeneric(num, charVal);
+    }
+
+    rc = bnLastError_;
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+int
+bigNumCmpBin(bignum num, char* charVal)
+{
+    int rc;
+
+    bnLastError_ =
+            bnValidateToContinue_(num, charVal, NUM_CHAR_TO_REPRESENT_BIN);
+    if (BN_OK == bnLastError_)
+    {
+        bnLastError_ = bnValidateInitialize_(num);
+    }
+
+    if (BN_OK == bnLastError_)
+    {
+        bnInfo_.numCharPerByte = NUM_CHAR_TO_REPRESENT_BIN;
+        bnInfo_.callbackToConvert = bnAddCharBinInByte_;
+        bnInfo_.callbackToAction = bnCompareBigNumBytes_;
+        bnLastError_ = bnGeneric(num, charVal);
+    }
+
+    rc = bnLastError_;
+    return rc;
 }

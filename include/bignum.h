@@ -141,15 +141,15 @@ bignumerr_t bigNumSetBin(bignum num, char* charVal);
 /**
  * \brief Set a bignum with another bignum.
  *
- * \param num bignum to set value.
+ * \param num1 bignum to set value.
  *
- * \param bnVal bignum with value to set.
+ * \param num2 bignum with value to set.
  *
  * \return bignumerr_t
  * - BN_OK to sucess
  * - error code.
  */
-bignumerr_t bigNumSet(bignum num, bignum bnVal);
+bignumerr_t bigNumSet(bignum num1, bignum num2);
 
 /**
  * \brief Print a bignum.
@@ -166,5 +166,70 @@ bignumerr_t bigNumSet(bignum num, bignum bnVal);
  *
  */
 void bigNumPrint(bignum num, BN_PRINT_FLAGS flag);
+
+/**
+ * \brief Compare two values, a bignum and an integer.
+ *
+ * \param num number in bignum.
+ *
+ * \param intVal number in integer.
+ *
+ * \return int
+ * - 0 to equal
+ * - 1 to bignum greater than integer.
+ * - (-2) to gibnum smaller the integer.
+ *
+ * \note Use `bigNumLastError` to get the last error code.
+ */
+int bigNumCmpInt(bignum num, unsigned int intVal);
+
+/**
+ * \brief Compare two bignum values.
+ *
+ * \param num1 number in bignum.
+ *
+ * \param num2 number in bignum.
+ *
+ * \return int
+ * - 0 to equal
+ * - 1 to num1 greater than num2.
+ * - (-2) to num1 smaller the num2.
+ *
+ * \note Use `bigNumLastError` to get the last error code.
+ */
+int bigNumCmp(bignum num1, bignum num2);
+
+/**
+ * \brief Compare two values, a bignum and a string representing hexadecimal
+ * number.
+ *
+ * \param num number in bignum.
+ *
+ * \param charVal string as Hex.
+ *
+ * \return int
+ * - 0 to equal
+ * - 1 to bignum greater than hex.
+ * - (-2) to gibnum smaller the hex.
+ *
+ * \note Use `bigNumLastError` to get the last error code.
+ */
+int bigNumCmpHex(bignum num, char* charVal);
+
+/**
+ * \brief Compare two values, a bignum and a string representing binary number.
+ *
+ * \param num number in bignum.
+ *
+ * \param charVal string as binary.
+ *
+ * \return int
+ * - 0 to equal
+ * - 1 to bignum greater than binary.
+ * - (-2) to gibnum smaller the binary.
+ *
+ * \note Use `bigNumLastError` to get the last error code.
+ */
+int bigNumCmpBin(bignum num, char* charVal);
 
 #endif /* #ifndef BIGNUN_H_ */
