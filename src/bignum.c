@@ -15,6 +15,12 @@
 #define NUM_CHAR_TO_REPRESENT_BIN 8
 
 typedef bignumerr_t (*bnFuncAddCharToByte)(unsigned char*, char);
+
+typedef struct _bignumlocal
+{
+    unsigned int numBytes;
+    unsigned char bytes[];
+}* bignumlocal;
 typedef struct _bignumlist
 {
     bignum val;
@@ -295,8 +301,11 @@ bnPutBytes_(bignum num, unsigned char* byteChar, unsigned int size)
 
     if (BN_OK == rc)
     {
-        memset(num, 0, numBytes);
-        memcpy(num, byteChar, size);
+        bignumlocal bnLocal = (bignumlocal)(num);
+        bnLocal->numBytes = size;
+
+        memset(bnLocal->bytes, 0, numBytes);
+        memcpy(bnLocal->bytes, byteChar, size);
     }
 
     bnLastError_ = rc;
@@ -392,7 +401,8 @@ bigNumNew(void)
     if (0 != numBits_)
     {
         unsigned int numBytes = bnGetSizeInBytes_();
-        rc = (bignum)calloc(numBytes, sizeof(unsigned char));
+        rc = (bignum)calloc(numBytes + sizeof(unsigned int),
+                            sizeof(unsigned char));
 
         if (NULL != rc)
         {
@@ -530,51 +540,47 @@ bigNumSet(bignum num, bignum bnVal)
 void
 bigNumPrint(bignum num, BN_PRINT_FLAGS flag)
 {
+    bignumlocal bnLocal = (bignumlocal)(num);
+
     unsigned numBytes = bnGetSizeInBytes_();
     bnLastError_ = bnValidateInitialize_(num);
 
     unsigned char count = 0;
     unsigned char numHexByLine = flag & 0xFF;
-    BOOL toPrint = (flag & BN_FLAG_PRINT_ZERO) ? TRUE : FALSE;
+    BOOL toPrint0 = (flag & BN_FLAG_PRINT_ZERO) ? TRUE : FALSE;
     char pref[3] = {'0', 'x', '\0'};
     char space = (flag & BN_FLAG_PRINT_SPACE) ? ' ' : '\0';
     char breakLine = '\0';
 
     pref[0] = (flag & BN_FLAG_PRINT_0X) ? '0' : '\0';
 
+    if (!toPrint0)
+    {
+        numBytes = bnLocal->numBytes;
+    }
+
     if (BN_OK == bnLastError_)
     {
         for (unsigned i = numBytes; i > 0; i--)
         {
-            if (!toPrint)
+            if (numHexByLine > 0)
             {
-                if (num[i - 1] > 0)
+                count++;
+                breakLine = '\0';
+
+                if ((count % numHexByLine) == 0)
                 {
-                    toPrint = TRUE;
+                    breakLine = '\n';
+                    count = 0;
                 }
             }
 
-            if (toPrint)
+            printf("%s%02X%c%c", pref, bnLocal->bytes[i - 1], space, breakLine);
+
+            if ((flag & BN_FLAG_PRINT_BREAK) && ('\0' == breakLine))
             {
-                if (numHexByLine > 0)
-                {
-                    count++;
-                    breakLine = '\0';
-
-                    if ((count % numHexByLine) == 0)
-                    {
-                        breakLine = '\n';
-                        count = 0;
-                    }
-                }
-
-                printf("%s%02X%c%c", pref, num[i - 1], space, breakLine);
+                printf("\n");
             }
-        }
-
-        if ((flag & BN_FLAG_PRINT_BREAK) && ('\0' == breakLine))
-        {
-            printf("\n");
         }
     }
 }

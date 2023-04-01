@@ -337,7 +337,7 @@ main(void)
         assert(BN_OK == err);
     }
 
-    err = bigNumInit(320000);
+    err = bigNumInit(32000);
     if (BN_OK == err)
     {
         bignum n1 = bigNumNew();
