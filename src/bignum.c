@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
+#include <time.h>
 
 #include <bignum.h>
 
@@ -63,6 +64,296 @@ static unsigned int bnStrLenOf_(char* charVal);
 static unsigned int bnGetSizeInBytes_(void);
 static unsigned int bnStrLenOf_(char* charVal);
 static unsigned int bnLenInBytesOf_(unsigned int chrLen, int nCharPerByte);
+static unsigned int bnGetSizeInBytes_(void);
+
+/*----------------------------------------------------------------------------*/
+static void
+bnShiftLeftNBytesEx_(bignum num, unsigned int nShiftByte)
+{
+    bignumlocal bnLocal = (bignumlocal)(num);
+    unsigned int numBytes = bnGetSizeInBytes_();
+    unsigned int numBytesTemp = bnLocal->numBytes + nShiftByte;
+    unsigned int ori = bnLocal->numBytes;
+    unsigned int dest;
+    unsigned int size;
+
+    assert(NULL != num);
+    assert(bnLocal->numBytes > 0);
+    assert(nShiftByte > 0);
+    assert(nShiftByte < numBytes);
+
+    if (numBytesTemp > numBytes)
+    {
+        numBytesTemp = numBytes;
+    }
+
+    while (ori > 0)
+    {
+        if (ori < nShiftByte)
+        {
+            ori = 0;
+        }
+        else
+        {
+            ori -= nShiftByte;
+        }
+
+        dest = ori + nShiftByte;
+
+        size = nShiftByte;
+
+        if (dest + size > numBytes)
+        {
+            size = numBytes - dest;
+        }
+
+        if (dest < numBytes)
+        {
+            memcpy((bnLocal->bytes + dest), (bnLocal->bytes + ori), size);
+            if (0 == ori)
+            {
+                memset((bnLocal->bytes + ori), 0, nShiftByte);
+            }
+        }
+    }
+
+    bnLocal->numBytes = 1;
+    for (unsigned int i = numBytesTemp; i > 0; i--)
+    {
+        if (bnLocal->bytes[i - 1] > 0)
+        {
+            bnLocal->numBytes = i;
+            break;
+        }
+    }
+}
+
+/*----------------------------------------------------------------------------*/
+static void
+bnShiftLeftNBytes_(bignum num, unsigned int nShiftByte)
+{
+    bignumlocal bnLocal = (bignumlocal)(num);
+
+    if ((nShiftByte > 0) &&
+        ((bnLocal->numBytes > 1) || (bnLocal->bytes[0] != 0)))
+    {
+        unsigned int numBytes = bnGetSizeInBytes_();
+        if (nShiftByte < numBytes)
+        {
+            bnShiftLeftNBytesEx_(num, nShiftByte);
+        }
+        else
+        {
+            bnLocal->numBytes = 1;
+            memset(bnLocal->bytes, 0, numBytes);
+        }
+    }
+}
+
+/*----------------------------------------------------------------------------*/
+static void
+bnShiftLeftNBits_(bignum num, int nShiftBits)
+{
+    if (nShiftBits > 0)
+    {
+        unsigned int i;
+        unsigned char carry = 0;
+        unsigned int numBytesTemp = 0;
+        unsigned int numBytes = bnGetSizeInBytes_();
+        bignumlocal bnLocal = (bignumlocal)(num);
+
+        assert(NULL != num);
+        assert(bnLocal->numBytes > 0);
+        assert(nShiftBits < BITS_PER_BYTE);
+
+        for (i = 0; i < numBytes; i++)
+        {
+            unsigned char temp =
+                    bnLocal->bytes[i] >> (BITS_PER_BYTE - nShiftBits);
+            bnLocal->bytes[i] = (bnLocal->bytes[i] << nShiftBits) | carry;
+            carry = temp;
+
+            if (bnLocal->bytes[i] > 0)
+            {
+                numBytesTemp = i + 1;
+            }
+
+            if ((i >= bnLocal->numBytes) && (carry == 0))
+            {
+                if (0 == numBytesTemp)
+                {
+                    numBytesTemp = 1;
+                }
+
+                bnLocal->numBytes = numBytesTemp;
+                break;
+            }
+        }
+    }
+}
+
+/*----------------------------------------------------------------------------*/
+static void
+bnShiftRightNBytesEx_(bignum num, unsigned int nShiftByte)
+{
+    bignumlocal bnLocal = (bignumlocal)(num);
+    unsigned int numBytes = bnGetSizeInBytes_();
+    unsigned int numBytesTemp = bnLocal->numBytes;
+    unsigned int ori = nShiftByte;
+    unsigned int dest = 0;
+    unsigned int size = nShiftByte;
+
+    assert(NULL != num);
+    assert(bnLocal->numBytes > 0);
+    assert(nShiftByte > 0);
+    assert(nShiftByte < bnLocal->numBytes);
+
+    if (numBytesTemp > nShiftByte)
+    {
+        numBytesTemp = numBytesTemp - nShiftByte;
+    }
+
+    while (ori < bnLocal->numBytes)
+    {
+        if (ori + size > bnLocal->numBytes)
+        {
+            size = bnLocal->numBytes - ori;
+        }
+
+        if (size > 0)
+        {
+            if (size < nShiftByte)
+            {
+                memset((bnLocal->bytes + dest), 0, nShiftByte);
+            }
+
+            memcpy((bnLocal->bytes + dest), (bnLocal->bytes + ori), size);
+
+            if (ori + size == bnLocal->numBytes)
+            {
+                memset((bnLocal->bytes + ori), 0, size);
+            }
+        }
+
+        dest += nShiftByte;
+        ori += nShiftByte;
+    }
+
+    bnLocal->numBytes = 1;
+    for (unsigned int i = numBytesTemp; i > 0; i--)
+    {
+        if (bnLocal->bytes[i - 1] > 0)
+        {
+            bnLocal->numBytes = i;
+            break;
+        }
+    }
+}
+
+/*----------------------------------------------------------------------------*/
+static void
+bnShifRightNBytes_(bignum num, unsigned int nShiftByte)
+{
+    bignumlocal bnLocal = (bignumlocal)(num);
+
+    if ((nShiftByte > 0) &&
+        ((bnLocal->numBytes > 1) || (bnLocal->bytes[0] != 0)))
+    {
+        unsigned int numBytes = bnGetSizeInBytes_();
+        if (nShiftByte < bnLocal->numBytes)
+        {
+            bnShiftRightNBytesEx_(num, nShiftByte);
+        }
+        else
+        {
+            bnLocal->numBytes = 1;
+            memset(bnLocal->bytes, 0, bnLocal->numBytes);
+        }
+    }
+}
+
+/*----------------------------------------------------------------------------*/
+static void
+bnShiftRightNBits_(bignum num, int nShiftBits)
+{
+    if (nShiftBits > 0)
+    {
+        unsigned int i;
+        unsigned char carry = 0;
+        unsigned int numBytesTemp = 0;
+        unsigned int numBytes = bnGetSizeInBytes_();
+        bignumlocal bnLocal = (bignumlocal)(num);
+
+        assert(NULL != num);
+        assert(bnLocal->numBytes > 0);
+        assert(nShiftBits < BITS_PER_BYTE);
+
+        for (i = bnLocal->numBytes; i > 0; i--)
+        {
+            unsigned char temp = bnLocal->bytes[i-1]
+                                 << (BITS_PER_BYTE - nShiftBits);
+            bnLocal->bytes[i-1] = (bnLocal->bytes[i-1] >> nShiftBits) | carry;
+            carry = temp;
+
+            if ((0 != bnLocal->bytes[i-1]) && (0 == numBytesTemp))
+            {
+                numBytesTemp = i;
+            }
+        }
+
+        if (0 == numBytesTemp)
+        {
+            numBytesTemp = 1;
+        }
+
+        bnLocal->numBytes = numBytesTemp;
+    }
+}
+
+/*----------------------------------------------------------------------------*/
+static bignumerr_t
+bnValidateToShift_(const bignum num,
+                   const unsigned int numBits,
+                   unsigned int* nShiftByte,
+                   int* nShiftBits)
+{
+    bignumerr_t rc = bnValidateInitialize_(num);
+
+    if (BN_OK == rc)
+    {
+        if (numBits <= 0)
+        {
+            rc = BN_ERR_INVALID_VALUE;
+        }
+    }
+
+    if (BN_OK == rc)
+    {
+        *nShiftByte = numBits / BITS_PER_BYTE;
+        *nShiftBits = numBits % BITS_PER_BYTE;
+    }
+
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+static bignumerr_t
+bnGenerateRandNum_(bignum num)
+{
+    bignumerr_t rc = bnValidateInitialize_(num);
+    bignumlocal bnLocal = (bignumlocal)(num);
+
+    srand((unsigned int)time(NULL));
+
+    bnLocal->numBytes = bnGetSizeInBytes_();
+
+    for (unsigned int i = 0; i < bnLocal->numBytes; i++)
+    {
+        bnLocal->bytes[i] = rand() % 256;
+    }
+
+    return rc;
+}
 
 /*----------------------------------------------------------------------------*/
 static bignumerr_t
@@ -378,10 +669,19 @@ bnPutBytes_(bignum num, unsigned char* byteChar, unsigned int size)
     if (BN_OK == rc)
     {
         bignumlocal bnLocal = (bignumlocal)(num);
-        bnLocal->numBytes = size;
 
         memset(bnLocal->bytes, 0, numBytes);
         memcpy(bnLocal->bytes, byteChar, size);
+
+        bnLocal->numBytes = 1;
+        for (unsigned int i = size; i > 0; i--)
+        {
+            if (bnLocal->bytes[i - 1] > 0)
+            {
+                bnLocal->numBytes = i;
+                break;
+            }
+        }
     }
 
     bnLastError_ = rc;
@@ -473,6 +773,8 @@ bigNumNew(void)
         if (NULL != rc)
         {
             pbignumlist node = (pbignumlist)malloc(sizeof(bignumlist));
+            rc[0] = 0x1;
+
             if (NULL != node)
             {
                 node->val = rc;
@@ -606,55 +908,6 @@ bigNumSet(bignum num1, bignum num2)
 }
 
 /*----------------------------------------------------------------------------*/
-void
-bigNumPrint(bignum num, BN_PRINT_FLAGS flag)
-{
-    bignumlocal bnLocal = (bignumlocal)(num);
-
-    unsigned numBytes = bnGetSizeInBytes_();
-    bnLastError_ = bnValidateInitialize_(num);
-
-    unsigned char count = 0;
-    unsigned char numHexByLine = flag & 0xFF;
-    BOOL toPrint0 = (flag & BN_FLAG_PRINT_ZERO) ? TRUE : FALSE;
-    char pref[3] = {'0', 'x', '\0'};
-    char space = (flag & BN_FLAG_PRINT_SPACE) ? ' ' : '\0';
-    char breakLine = '\0';
-
-    pref[0] = (flag & BN_FLAG_PRINT_0X) ? '0' : '\0';
-
-    if (!toPrint0)
-    {
-        numBytes = bnLocal->numBytes;
-    }
-
-    if (BN_OK == bnLastError_)
-    {
-        for (unsigned i = numBytes; i > 0; i--)
-        {
-            if (numHexByLine > 0)
-            {
-                count++;
-                breakLine = '\0';
-
-                if ((count % numHexByLine) == 0)
-                {
-                    breakLine = '\n';
-                    count = 0;
-                }
-            }
-
-            printf("%s%02X%c%c", pref, bnLocal->bytes[i - 1], space, breakLine);
-
-            if ((flag & BN_FLAG_PRINT_BREAK) && ('\0' == breakLine))
-            {
-                printf("\n");
-            }
-        }
-    }
-}
-
-/*----------------------------------------------------------------------------*/
 int
 bigNumCmpInt(bignum num, unsigned int intVal)
 {
@@ -766,4 +1019,114 @@ bigNumCmpBin(bignum num, char* charVal)
 
     rc = bnLastError_;
     return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+bignumerr_t
+bigNumRand(bignum num)
+{
+    return bnGenerateRandNum_(num);
+}
+
+/*----------------------------------------------------------------------------*/
+bignumerr_t
+bigNumShiftLeft(bignum num, const unsigned int numBits)
+{
+    unsigned int nShiftByte;
+    int nShiftBits;
+    bignumerr_t rc = bnValidateToShift_(num, numBits, &nShiftByte, &nShiftBits);
+
+    if (BN_OK == rc)
+    {
+        bnShiftLeftNBits_(num, nShiftBits);
+        bnShiftLeftNBytes_(num, nShiftByte);
+    }
+
+    bnLastError_ = rc;
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+bignumerr_t
+bigNumShiftRight(bignum num, unsigned int numBits)
+{
+    unsigned int nShiftByte;
+    int nShiftBits;
+    bignumerr_t rc = bnValidateToShift_(num, numBits, &nShiftByte, &nShiftBits);
+
+    if (BN_OK == rc)
+    {
+        bnShifRightNBytes_(num, nShiftByte);
+        bnShiftRightNBits_(num, nShiftBits);
+    }
+
+    bnLastError_ = rc;
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+bignumerr_t
+bigNumToStrHex(bignum num, unsigned char* valNum, unsigned int size)
+{
+    bignumerr_t rc = bnValidateInitialize_(num);
+
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+bignumerr_t
+bigNumToStrBin(bignum num, unsigned char* valNum, unsigned int size)
+{
+    bignumerr_t rc = bnValidateInitialize_(num);
+
+    return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+void
+bigNumPrint(bignum num, BN_PRINT_FLAGS flag)
+{
+    bignumlocal bnLocal = (bignumlocal)(num);
+
+    unsigned numBytes = bnGetSizeInBytes_();
+    bnLastError_ = bnValidateInitialize_(num);
+
+    unsigned char count = 0;
+    unsigned char numHexByLine = flag & 0xFF;
+    BOOL toPrint0 = (flag & BN_FLAG_PRINT_ZERO) ? TRUE : FALSE;
+    char pref[3] = {'0', 'x', '\0'};
+    char space = (flag & BN_FLAG_PRINT_SPACE) ? ' ' : '\0';
+    char breakLine = '\0';
+
+    pref[0] = (flag & BN_FLAG_PRINT_0X) ? '0' : '\0';
+
+    if (!toPrint0)
+    {
+        numBytes = bnLocal->numBytes;
+    }
+
+    if (BN_OK == bnLastError_)
+    {
+        for (unsigned i = numBytes; i > 0; i--)
+        {
+            if (numHexByLine > 0)
+            {
+                count++;
+                breakLine = '\0';
+
+                if ((count % numHexByLine) == 0)
+                {
+                    breakLine = '\n';
+                    count = 0;
+                }
+            }
+
+            printf("%s%02X%c%c", pref, bnLocal->bytes[i - 1], space, breakLine);
+        }
+
+        if ((flag & BN_FLAG_PRINT_BREAK) && ('\0' == breakLine))
+        {
+            printf("\n");
+        }
+    }
 }

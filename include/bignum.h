@@ -232,4 +232,79 @@ int bigNumCmpHex(bignum num, char* charVal);
  */
 int bigNumCmpBin(bignum num, char* charVal);
 
+/**
+ * \brief generate random bignum.
+ *
+ * \param num bignum.
+ *
+ * \return bignumerr_t
+ * - BN_OK to sucess
+ * - error code.
+ */
+bignumerr_t bigNumRand(bignum num);
+
+/**
+ * \brief Shift bignum N bits to left.
+ *
+ * This function shift bignum N bits to left. The number to shift can be between
+ * 0 and the maximum allowed by an unsigned int. However, if the number of bits
+ * is greater than the number of bits informed when initializing the bignum, the
+ * result will always be 0.
+ *
+ * \param num bignum.
+ * \param num num bits to shift.
+ *
+ * \return bignumerr_t
+ * - BN_OK to sucess
+ * - error code.
+ */
+bignumerr_t bigNumShiftLeft(bignum num, const unsigned int numBits);
+
+/**
+ * \brief Shift bignum N bits to right.
+ *
+ * This function shift bignum N bits to rigth. The number to shift can be between
+ * 0 and the maximum allowed by an unsigned int. However, if the number of bits
+ * is greater than the number of bits informed when initializing the bignum, the
+ * result will always be 0.
+ *
+ * \param num bignum.
+ * \param num num bits to shift.
+ *
+ * \return bignumerr_t
+ * - BN_OK to sucess
+ * - error code.
+ */
+bignumerr_t bigNumShiftRight(bignum num, unsigned int numBits);
+
+/**
+ * \brief Converts the bignum to a string with hexadecimal representation.
+ *
+ * \param num bignum.
+ * \param valNum will receive the Hex string.
+ * \param size size of valNum.
+ * 
+ * \return bignumerr_t
+ * - BN_OK to sucess
+ * - error code.
+ */
+bignumerr_t bigNumToStrHex(bignum num,
+                           unsigned char* valNum,
+                           unsigned int size);
+
+/**
+ * \brief Converts the bignum to a string with binary representation.
+ *
+ * \param num bignum.
+ * \param valNum will receive the Bin string.
+ * \param size size of valNum.
+ * 
+ * \return bignumerr_t
+ * - BN_OK to sucess
+ * - error code.
+ */
+bignumerr_t bigNumToStrBin(bignum num,
+                           unsigned char* valNum,
+                           unsigned int size);
+
 #endif /* #ifndef BIGNUN_H_ */

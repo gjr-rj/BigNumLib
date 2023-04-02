@@ -35,6 +35,130 @@ main(void)
         bignum n4 = bigNumNew();
 
         assert(bigNumCmpInt(n1, 0) == 0);
+        assert(bigNumShiftLeft(n1, 0) == BN_ERR_INVALID_VALUE);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumShiftRight(n1, 0) == BN_ERR_INVALID_VALUE);
+        assert(bigNumShiftRight(n1, 1) == BN_OK);
+        assert(bigNumShiftRight(n1, 2) == BN_OK);
+        assert(bigNumShiftRight(n1, 3) == BN_OK);
+        assert(bigNumShiftRight(n1, 6) == BN_OK);
+        assert(bigNumShiftRight(n1, 7) == BN_OK);
+        assert(bigNumShiftRight(n1, 8) == BN_OK);
+        assert(bigNumShiftRight(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "0") == BN_OK);
+        assert(bigNumShiftRight(n1, 1) == BN_OK);
+        assert(bigNumShiftRight(n1, 2) == BN_OK);
+        assert(bigNumShiftRight(n1, 3) == BN_OK);
+        assert(bigNumShiftRight(n1, 6) == BN_OK);
+        assert(bigNumShiftRight(n1, 7) == BN_OK);
+        assert(bigNumShiftRight(n1, 8) == BN_OK);
+        assert(bigNumShiftRight(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "1") == BN_OK);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+
+        assert(bigNumShiftRight(n1, 6) == BN_OK);
+        assert(bigNumShiftRight(n1, 3) == BN_OK);
+        assert(bigNumShiftRight(n1, 2) == BN_OK);
+        assert(bigNumShiftRight(n1, 1) == BN_OK);
+
+        assert(bigNumSetHex(n1, "111111") == BN_OK);
+        assert(bigNumShiftRight(n1, 6) == BN_OK);
+        assert(bigNumShiftRight(n1, 3) == BN_OK);
+        assert(bigNumShiftRight(n1, 2) == BN_OK);
+        assert(bigNumShiftRight(n1, 1) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumSetHex(n1, "1") == BN_OK);
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "2") == BN_OK);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "3") == BN_OK);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "FE") == BN_OK);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+
+        assert(bigNumShiftRight(n1, 1) == BN_OK);
+        assert(bigNumShiftRight(n1, 2) == BN_OK);
+        assert(bigNumShiftRight(n1, 3) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "FF") == BN_OK);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
 
         assert(bigNumSetHex(n2, NULL) == BN_ERR_INVALID_VALUE);
         assert(bigNumSetHex(n2, "") == BN_ERR_INVALID_VALUE);
@@ -209,7 +333,6 @@ main(void)
         assert(bigNumCmpInt(n1, 838493355) == 0);
         assert(bigNumCmpInt(n1, 8) == 1);
 
-
         assert(bigNumSetHex(n2, "A3") == BN_OK);
         assert(bigNumSetBin(n3, "111111111111110001") == BN_OK);
         assert(bigNumCmpInt(n3, 262129) == 0);
@@ -328,6 +451,151 @@ main(void)
         bignum n3 = bigNumNew();
         bignum n4 = bigNumNew();
 
+        assert(bigNumCmpInt(n1, 0) == 0);
+        assert(bigNumShiftLeft(n1, 0) == BN_ERR_INVALID_VALUE);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "0") == BN_OK);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "1") == BN_OK);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumSetHex(n1, "1") == BN_OK);
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "2") == BN_OK);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "3") == BN_OK);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "FE") == BN_OK);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
+
+        assert(bigNumSetHex(n1, "FF") == BN_OK);
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumSetHex(n1, "234122562367FF") == BN_OK);
+        assert(bigNumSet(n2, n1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 4) == BN_OK);
+        assert(bigNumShiftRight(n1, 4) == BN_OK);
+        assert(bigNumCmp(n1, n2) == 0);
+
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftRight(n1, 7) == BN_OK);
+        assert(bigNumCmp(n1, n2) == 0);
+
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftRight(n1, 8) == BN_OK);
+        assert(bigNumCmp(n1, n2) == 0);
+
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+        assert(bigNumShiftRight(n1, 9) == BN_OK);
+        assert(bigNumCmp(n1, n2) == 0);
+
+        assert(bigNumShiftLeft(n1, 13) == BN_OK);
+        assert(bigNumShiftRight(n1, 13) == BN_OK);
+        assert(bigNumCmp(n1, n2) == 0);
+
+        assert(bigNumShiftLeft(n1, 34) == BN_OK);
+        assert(bigNumShiftRight(n1, 34) == BN_OK);
+        assert(bigNumCmp(n1, n2) == 0);
+
+        assert(bigNumShiftLeft(n1, 99) == BN_OK);
+        assert(bigNumShiftRight(n1, 99) == BN_OK);
+        assert(bigNumCmp(n1, n2) == 0);
+
+        assert(bigNumShiftLeft(n1, 133) == BN_OK);
+        assert(bigNumShiftRight(n1, 133) == BN_OK);
+        assert(bigNumCmp(n1, n2) == 0);
+
+        assert(bigNumShiftLeft(n1, 30000) == BN_OK);
+        assert(bigNumShiftRight(n1, 30000) == BN_OK);
+        assert(bigNumCmp(n1, n2) == 0);
+
+        assert(bigNumShiftLeft(n1, 1) == BN_OK);
+        assert(bigNumShiftLeft(n1, 2) == BN_OK);
+        assert(bigNumShiftLeft(n1, 3) == BN_OK);
+        assert(bigNumShiftLeft(n1, 6) == BN_OK);
+        assert(bigNumShiftLeft(n1, 7) == BN_OK);
+        assert(bigNumShiftLeft(n1, 8) == BN_OK);
+        assert(bigNumShiftLeft(n1, 9) == BN_OK);
+
+        assert(bigNumShiftLeft(n1, 24) == BN_OK);
+        assert(bigNumShiftLeft(n1, 31) == BN_OK);
+        assert(bigNumShiftLeft(n1, 32) == BN_OK);
+        assert(bigNumShiftLeft(n1, 33) == BN_OK);
 
         assert(bigNumSetHex(n2, "8844DCBD44DDC") == BN_OK);
         bigNumPrint(n2, 16 | BN_FLAG_PRINT_0X | BN_FLAG_PRINT_SPACE);
@@ -425,9 +693,9 @@ main(void)
         bigNumPrint(n3,
                     BN_FLAG_PRINT_SPACE | BN_FLAG_PRINT_0X |
                             BN_FLAG_PRINT_BREAK);
+        printf("\n---------------------------\n");
 
         assert(bigNumSet(n4, n3) == BN_OK);
-
 
         assert(bigNumCmp(n3, n4) == 0);
 
@@ -450,6 +718,12 @@ main(void)
         n1 = bigNumNew();
         err = bigNumLastError();
         assert(BN_OK == err);
+
+        assert(BN_OK == bigNumRand(n1));
+        bigNumPrint(n1,
+                    24 | BN_FLAG_PRINT_SPACE | BN_FLAG_PRINT_0X |
+                            BN_FLAG_PRINT_BREAK);
+        printf("\n---------------------------\n");
 
         bigNumFree(&n1);
         err = bigNumLastError();
