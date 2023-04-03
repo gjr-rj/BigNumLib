@@ -10,6 +10,7 @@
 void
 main(void)
 {
+    char numStr[1000];
     bignumerr_t err;
     bignum n0 = bigNumNew();
 
@@ -84,6 +85,11 @@ main(void)
         assert(bigNumShiftRight(n1, 1) == BN_OK);
 
         assert(bigNumSetHex(n1, "111111") == BN_OK);
+        assert(bigNumToStrHex(n1, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+        assert(bigNumToStrBin(n1, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+
         assert(bigNumShiftRight(n1, 6) == BN_OK);
         assert(bigNumShiftRight(n1, 3) == BN_OK);
         assert(bigNumShiftRight(n1, 2) == BN_OK);
@@ -94,12 +100,22 @@ main(void)
         assert(bigNumShiftLeft(n1, 9) == BN_OK);
 
         assert(bigNumSetHex(n1, "1") == BN_OK);
+        assert(bigNumToStrHex(n1, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+        assert(bigNumToStrBin(n1, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+
         assert(bigNumShiftLeft(n1, 24) == BN_OK);
         assert(bigNumShiftLeft(n1, 31) == BN_OK);
         assert(bigNumShiftLeft(n1, 32) == BN_OK);
         assert(bigNumShiftLeft(n1, 33) == BN_OK);
 
         assert(bigNumSetHex(n1, "2") == BN_OK);
+        assert(bigNumToStrHex(n1, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+        assert(bigNumToStrBin(n1, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+
         assert(bigNumShiftLeft(n1, 1) == BN_OK);
         assert(bigNumShiftLeft(n1, 2) == BN_OK);
         assert(bigNumShiftLeft(n1, 3) == BN_OK);
@@ -128,6 +144,11 @@ main(void)
         assert(bigNumShiftLeft(n1, 33) == BN_OK);
 
         assert(bigNumSetHex(n1, "FE") == BN_OK);
+        assert(bigNumToStrHex(n1, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+        assert(bigNumToStrBin(n1, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+
         assert(bigNumShiftLeft(n1, 1) == BN_OK);
         assert(bigNumShiftLeft(n1, 2) == BN_OK);
         assert(bigNumShiftLeft(n1, 3) == BN_OK);
@@ -224,6 +245,11 @@ main(void)
 
         assert(bigNumSetHex(n2, "10") == BN_OK);
         assert(bigNumSetBin(n3, "1000") == BN_OK);
+        assert(bigNumToStrHex(n3, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+        assert(bigNumToStrBin(n3, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+
         bigNumPrint(n3,
                     BN_FLAG_PRINT_SPACE | BN_FLAG_PRINT_0X |
                             BN_FLAG_PRINT_BREAK);
@@ -288,6 +314,11 @@ main(void)
         assert(bigNumCmpInt(n1, 0) == 0);
 
         assert(bigNumSetInt(n1, 838493355) == BN_OK);
+        assert(bigNumToStrHex(n1, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+        assert(bigNumToStrBin(n1, numStr, 1000) == BN_OK);
+        printf ("Num str = %s\n", numStr);
+
         assert(bigNumCmpInt(n1, 838493355) == 0);
         assert(bigNumCmpBin(n1, "00110001111110100110010010101011") == 0);
         assert(bigNumCmpHex(n1, "31FA64AB") == 0);

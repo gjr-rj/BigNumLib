@@ -66,6 +66,68 @@ static unsigned int bnStrLenOf_(char* charVal);
 static unsigned int bnLenInBytesOf_(unsigned int chrLen, int nCharPerByte);
 static unsigned int bnGetSizeInBytes_(void);
 
+
+/*----------------------------------------------------------------------------*/
+static bignumerr_t
+bnGenericToChar_(const bignum num,
+                 unsigned char* valNum,
+                 const unsigned int size,
+                 const int numCharPerByte)
+{
+    bignumerr_t rc = bnValidateInitialize_(num);
+    bignumlocal bnLocal = (bignumlocal)(num);
+    unsigned int vnIdx = 0;
+
+    if (BN_OK == rc)
+    {
+        if (NULL == valNum)
+        {
+            rc = BN_ERR_INVALID_SIZE_BUFFER;
+        }
+
+        if (size - 1 < bnLocal->numBytes * numCharPerByte)
+        {
+            rc = BN_ERR_INVALID_SIZE_BUFFER;
+        }
+    }
+
+    if (BN_OK == rc)
+    {
+        for (unsigned int i = bnLocal->numBytes; i > 0; i--)
+        {
+            switch (numCharPerByte)
+            {
+                case NUM_CHAR_TO_REPRESENT_HEX:
+                    sprintf_s((valNum + vnIdx),
+                              numCharPerByte + 1,
+                              "%02X",
+                              *(bnLocal->bytes + (i - 1)));
+                    break;
+
+                case NUM_CHAR_TO_REPRESENT_BIN:
+                    char byte = *(bnLocal->bytes + (i - 1));
+                    sprintf_s((valNum + vnIdx),
+                              NUM_CHAR_TO_REPRESENT_BIN + 1,
+                              "%d%d%d%d%d%d%d%d",
+                              (byte & 0x80) >> 7,
+                              (byte & 0x40) >> 6,
+                              (byte & 0x20) >> 5,
+                              (byte & 0x10) >> 4,
+                              (byte & 0x08) >> 3,
+                              (byte & 0x04) >> 2,
+                              (byte & 0x02) >> 1,
+                              (byte & 0x01));
+
+                    break;
+            }
+
+            vnIdx += numCharPerByte;
+        }
+    }
+
+    return rc;
+}
+
 /*----------------------------------------------------------------------------*/
 static void
 bnShiftLeftNBytesEx_(bignum num, unsigned int nShiftByte)
@@ -290,12 +352,13 @@ bnShiftRightNBits_(bignum num, int nShiftBits)
 
         for (i = bnLocal->numBytes; i > 0; i--)
         {
-            unsigned char temp = bnLocal->bytes[i-1]
+            unsigned char temp = bnLocal->bytes[i - 1]
                                  << (BITS_PER_BYTE - nShiftBits);
-            bnLocal->bytes[i-1] = (bnLocal->bytes[i-1] >> nShiftBits) | carry;
+            bnLocal->bytes[i - 1] =
+                    (bnLocal->bytes[i - 1] >> nShiftBits) | carry;
             carry = temp;
 
-            if ((0 != bnLocal->bytes[i-1]) && (0 == numBytesTemp))
+            if ((0 != bnLocal->bytes[i - 1]) && (0 == numBytesTemp))
             {
                 numBytesTemp = i;
             }
@@ -1066,10 +1129,11 @@ bigNumShiftRight(bignum num, unsigned int numBits)
 
 /*----------------------------------------------------------------------------*/
 bignumerr_t
-bigNumToStrHex(bignum num, unsigned char* valNum, unsigned int size)
+bigNumToStrHex(const bignum num, unsigned char* valNum, unsigned int size)
 {
-    bignumerr_t rc = bnValidateInitialize_(num);
-
+    bignumerr_t rc =
+            bnGenericToChar_(num, valNum, size, NUM_CHAR_TO_REPRESENT_HEX);
+    bnLastError_ = rc;
     return rc;
 }
 
@@ -1077,8 +1141,9 @@ bigNumToStrHex(bignum num, unsigned char* valNum, unsigned int size)
 bignumerr_t
 bigNumToStrBin(bignum num, unsigned char* valNum, unsigned int size)
 {
-    bignumerr_t rc = bnValidateInitialize_(num);
-
+    bignumerr_t rc =
+            bnGenericToChar_(num, valNum, size, NUM_CHAR_TO_REPRESENT_BIN);
+    bnLastError_ = rc;
     return rc;
 }
 
