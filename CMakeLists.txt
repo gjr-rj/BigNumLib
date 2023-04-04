@@ -9,10 +9,12 @@ set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ROOT_PATH}/lib )
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ROOT_PATH}/bin )
 
 add_library( ${LIBRARY_NAME} STATIC
+            src/bignummath.c
             src/bignum.c
 )
 
 target_include_directories( ${LIBRARY_NAME} PRIVATE
+                           src/include
                            include
 )
 

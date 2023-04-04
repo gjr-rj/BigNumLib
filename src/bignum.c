@@ -1,20 +1,18 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <assert.h>
 #include <time.h>
 
+#include <commonbignum.h>
 #include <bignum.h>
-
-#define BOOL  unsigned char
-#define TRUE  1
-#define FALSE 0
+#include <internalbignum.h>
 
 #define BITS_PER_BYTE 8
 
 #define NUM_CHAR_TO_REPRESENT_HEX 2
 #define NUM_CHAR_TO_REPRESENT_BIN 8
 
+#define BYTES_TO_SIZE              sizeof(unsigned int)
 #define LOCAL_ERROR                (-99)
 #define PARAM1_GRATER_THEN_PARAM2  1
 #define PARAM1_SMALLER_THEN_PARAM2 (-1)
@@ -25,11 +23,6 @@ typedef bignumerr_t (*bnFuncActionBigNumToByte)(bignum,
                                                 unsigned char*,
                                                 unsigned int);
 
-typedef struct _bignumlocal
-{
-    unsigned int numBytes;
-    unsigned char bytes[];
-}* bignumlocal;
 typedef struct _bignumlist
 {
     bignum val;
@@ -59,13 +52,16 @@ static unsigned int numBits_ = 0;
 #define IS_af(n)     ((n >= 'a') && (n <= 'f'))
 #define af_TO_HEX(n) (n - 'a' + 10)
 
-static bignumerr_t bnValidateInitialize_(bignum num);
 static unsigned int bnStrLenOf_(char* charVal);
-static unsigned int bnGetSizeInBytes_(void);
 static unsigned int bnStrLenOf_(char* charVal);
 static unsigned int bnLenInBytesOf_(unsigned int chrLen, int nCharPerByte);
-static unsigned int bnGetSizeInBytes_(void);
 
+/*----------------------------------------------------------------------------*/
+void
+bnSetLastError(bignumerr_t err)
+{
+    bnLastError_ = err;
+}
 
 /*----------------------------------------------------------------------------*/
 static bignumerr_t
@@ -74,7 +70,7 @@ bnGenericToChar_(const bignum num,
                  const unsigned int size,
                  const int numCharPerByte)
 {
-    bignumerr_t rc = bnValidateInitialize_(num);
+    bignumerr_t rc = bnValidateInitialize(num);
     bignumlocal bnLocal = (bignumlocal)(num);
     unsigned int vnIdx = 0;
 
@@ -133,7 +129,7 @@ static void
 bnShiftLeftNBytesEx_(bignum num, unsigned int nShiftByte)
 {
     bignumlocal bnLocal = (bignumlocal)(num);
-    unsigned int numBytes = bnGetSizeInBytes_();
+    unsigned int numBytes = bnGetSizeInBytes();
     unsigned int numBytesTemp = bnLocal->numBytes + nShiftByte;
     unsigned int ori = bnLocal->numBytes;
     unsigned int dest;
@@ -199,7 +195,7 @@ bnShiftLeftNBytes_(bignum num, unsigned int nShiftByte)
     if ((nShiftByte > 0) &&
         ((bnLocal->numBytes > 1) || (bnLocal->bytes[0] != 0)))
     {
-        unsigned int numBytes = bnGetSizeInBytes_();
+        unsigned int numBytes = bnGetSizeInBytes();
         if (nShiftByte < numBytes)
         {
             bnShiftLeftNBytesEx_(num, nShiftByte);
@@ -221,7 +217,7 @@ bnShiftLeftNBits_(bignum num, int nShiftBits)
         unsigned int i;
         unsigned char carry = 0;
         unsigned int numBytesTemp = 0;
-        unsigned int numBytes = bnGetSizeInBytes_();
+        unsigned int numBytes = bnGetSizeInBytes();
         bignumlocal bnLocal = (bignumlocal)(num);
 
         assert(NULL != num);
@@ -259,7 +255,7 @@ static void
 bnShiftRightNBytesEx_(bignum num, unsigned int nShiftByte)
 {
     bignumlocal bnLocal = (bignumlocal)(num);
-    unsigned int numBytes = bnGetSizeInBytes_();
+    unsigned int numBytes = bnGetSizeInBytes();
     unsigned int numBytesTemp = bnLocal->numBytes;
     unsigned int ori = nShiftByte;
     unsigned int dest = 0;
@@ -321,7 +317,7 @@ bnShifRightNBytes_(bignum num, unsigned int nShiftByte)
     if ((nShiftByte > 0) &&
         ((bnLocal->numBytes > 1) || (bnLocal->bytes[0] != 0)))
     {
-        unsigned int numBytes = bnGetSizeInBytes_();
+        unsigned int numBytes = bnGetSizeInBytes();
         if (nShiftByte < bnLocal->numBytes)
         {
             bnShiftRightNBytesEx_(num, nShiftByte);
@@ -343,7 +339,7 @@ bnShiftRightNBits_(bignum num, int nShiftBits)
         unsigned int i;
         unsigned char carry = 0;
         unsigned int numBytesTemp = 0;
-        unsigned int numBytes = bnGetSizeInBytes_();
+        unsigned int numBytes = bnGetSizeInBytes();
         bignumlocal bnLocal = (bignumlocal)(num);
 
         assert(NULL != num);
@@ -380,7 +376,7 @@ bnValidateToShift_(const bignum num,
                    unsigned int* nShiftByte,
                    int* nShiftBits)
 {
-    bignumerr_t rc = bnValidateInitialize_(num);
+    bignumerr_t rc = bnValidateInitialize(num);
 
     if (BN_OK == rc)
     {
@@ -403,12 +399,12 @@ bnValidateToShift_(const bignum num,
 static bignumerr_t
 bnGenerateRandNum_(bignum num)
 {
-    bignumerr_t rc = bnValidateInitialize_(num);
+    bignumerr_t rc = bnValidateInitialize(num);
     bignumlocal bnLocal = (bignumlocal)(num);
 
     srand((unsigned int)time(NULL));
 
-    bnLocal->numBytes = bnGetSizeInBytes_();
+    bnLocal->numBytes = bnGetSizeInBytes();
 
     for (unsigned int i = 0; i < bnLocal->numBytes; i++)
     {
@@ -423,7 +419,7 @@ static bignumerr_t
 bnValidateToContinue_(bignum num, char* charVal, int numCharPerByte)
 {
     bignumerr_t rc = BN_OK;
-    unsigned numBytes = bnGetSizeInBytes_();
+    unsigned numBytes = bnGetSizeInBytes();
     unsigned int chrLen = bnStrLenOf_(charVal);
     unsigned int byteLen = bnLenInBytesOf_(chrLen, numCharPerByte);
 
@@ -466,7 +462,7 @@ bnCompareBigNumBytes_(bignum num, unsigned char* bytes, unsigned int size)
     int rc = PARAM1_EQUAL_PARAM2;
     bignumlocal bnLocal = (bignumlocal)(num);
 
-    assert(BN_OK == bnValidateInitialize_(num));
+    assert(BN_OK == bnValidateInitialize(num));
     assert(NULL != bytes);
 
     for (unsigned int i = size; i > 0; i--)
@@ -678,8 +674,8 @@ bnStrToByte_(unsigned char* ByteVal,
 }
 
 /*----------------------------------------------------------------------------*/
-static unsigned int
-bnGetSizeInBytes_(void)
+unsigned int
+bnGetSizeInBytes(void)
 {
     unsigned int rc = 0;
     if (0 != numBits_)
@@ -692,8 +688,8 @@ bnGetSizeInBytes_(void)
 }
 
 /*----------------------------------------------------------------------------*/
-static bignumerr_t
-bnValidateInitialize_(bignum num)
+bignumerr_t
+bnValidateInitialize(bignum num)
 {
     bignumerr_t rc = BN_ERR;
 
@@ -720,8 +716,8 @@ bnValidateInitialize_(bignum num)
 static bignumerr_t
 bnPutBytes_(bignum num, unsigned char* byteChar, unsigned int size)
 {
-    unsigned numBytes = bnGetSizeInBytes_();
-    bignumerr_t rc = bnValidateInitialize_(num);
+    unsigned numBytes = bnGetSizeInBytes();
+    bignumerr_t rc = bnValidateInitialize(num);
 
     assert(NULL != byteChar);
     if (size > numBytes)
@@ -829,8 +825,8 @@ bigNumNew(void)
 
     if (0 != numBits_)
     {
-        unsigned int numBytes = bnGetSizeInBytes_();
-        rc = (bignum)calloc(numBytes + sizeof(unsigned int),
+        unsigned int numBytes = bnGetSizeInBytes();
+        rc = (bignum)calloc(BYTES_TO_SIZE + numBytes + BYTE_TO_OVERFLOW,
                             sizeof(unsigned char));
 
         if (NULL != rc)
@@ -952,12 +948,12 @@ bigNumSetBin(bignum num, char* charVal)
 bignumerr_t
 bigNumSet(bignum num1, bignum num2)
 {
-    unsigned int numBytes = bnGetSizeInBytes_();
-    bignumerr_t rc = bnValidateInitialize_(num1);
+    unsigned int numBytes = bnGetSizeInBytes();
+    bignumerr_t rc = bnValidateInitialize(num1);
 
     if (BN_OK == rc)
     {
-        rc = bnValidateInitialize_(num2);
+        rc = bnValidateInitialize(num2);
     }
 
     if (BN_OK == rc)
@@ -974,7 +970,7 @@ bigNumSet(bignum num1, bignum num2)
 int
 bigNumCmpInt(bignum num, unsigned int intVal)
 {
-    bnLastError_ = bnValidateInitialize_(num);
+    bnLastError_ = bnValidateInitialize(num);
     int rc = LOCAL_ERROR;
 
     if (BN_OK == bnLastError_)
@@ -1009,10 +1005,10 @@ bigNumCmpInt(bignum num, unsigned int intVal)
 int
 bigNumCmp(bignum num1, bignum num2)
 {
-    bnLastError_ = bnValidateInitialize_(num1);
+    bnLastError_ = bnValidateInitialize(num1);
     if (BN_OK == bnLastError_)
     {
-        bnLastError_ = bnValidateInitialize_(num2);
+        bnLastError_ = bnValidateInitialize(num2);
     }
 
     int rc = LOCAL_ERROR;
@@ -1044,7 +1040,7 @@ bigNumCmpHex(bignum num, char* charVal)
             bnValidateToContinue_(num, charVal, NUM_CHAR_TO_REPRESENT_HEX);
     if (BN_OK == bnLastError_)
     {
-        bnLastError_ = bnValidateInitialize_(num);
+        bnLastError_ = bnValidateInitialize(num);
     }
 
     if (BN_OK == bnLastError_)
@@ -1069,7 +1065,7 @@ bigNumCmpBin(bignum num, char* charVal)
             bnValidateToContinue_(num, charVal, NUM_CHAR_TO_REPRESENT_BIN);
     if (BN_OK == bnLastError_)
     {
-        bnLastError_ = bnValidateInitialize_(num);
+        bnLastError_ = bnValidateInitialize(num);
     }
 
     if (BN_OK == bnLastError_)
@@ -1153,8 +1149,8 @@ bigNumPrint(bignum num, BN_PRINT_FLAGS flag)
 {
     bignumlocal bnLocal = (bignumlocal)(num);
 
-    unsigned numBytes = bnGetSizeInBytes_();
-    bnLastError_ = bnValidateInitialize_(num);
+    unsigned numBytes = bnGetSizeInBytes();
+    bnLastError_ = bnValidateInitialize(num);
 
     unsigned char count = 0;
     unsigned char numHexByLine = flag & 0xFF;
