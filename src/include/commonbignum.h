@@ -2,6 +2,7 @@
 
 #include <assert.h>
 
+#define BITS_PER_BYTE    8
 #define BYTE_TO_OVERFLOW 1
 
 #define BOOL  unsigned char

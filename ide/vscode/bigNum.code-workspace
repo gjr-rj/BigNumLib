@@ -3,11 +3,5 @@
 		{
 			"path": "../.."
 		}
-	],
-	"settings": {
-		"files.associations": {
-			"bignum.h": "c",
-			"stdio.h": "c"
-		}
-	}
+	]
 }

@@ -11,9 +11,8 @@
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}/build"
-			  }
+			}
 		},
-
 		{
 			"label": "Build Debug",
 			"command": "py",
@@ -24,9 +23,8 @@
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}/build"
-			  }
+			}
 		},
-
 		{
 			"label": "Generates Doc",
 			"command": "py",
@@ -37,9 +35,8 @@
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}/build"
-			  }
+			}
 		},
-
 		{
 			"label": "Run Tests",
 			"command": "py",
@@ -50,23 +47,21 @@
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}/build"
-			  }
+			}
 		},
-
 		{
 			"label": "Build Smoke",
 			"command": "py",
 			"args": [
 				"build.py",
-				"--release",
+				"--debug",
 				"--smoke"
 			],
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}/build"
-			  }
+			}
 		},
-
 		{
 			"label": "Build delivery",
 			"command": "py",
@@ -79,9 +74,8 @@
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}/build"
-			  }
+			}
 		},
-
 		{
 			"label": "Build Full",
 			"command": "py",
@@ -95,8 +89,19 @@
 			"group": "build",
 			"options": {
 				"cwd": "${workspaceFolder}/build"
-			  }
+			}
 		},
+		{
+			"type": "cmake",
+			"label": "CMake: build",
+			"command": "build",
+			"targets": [
+				""
+			],
+			"group": "build",
+			"problemMatcher": [],
+			"detail": "CMake template build task"
+		}
 	],
 	
 }

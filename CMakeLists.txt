@@ -22,10 +22,13 @@ SET( APP_TEST_EXE bignumlibQA )
 
 ADD_EXECUTABLE( ${APP_TEST_EXE}
                 test/bignumQA.c
+                test/testbase.c
+                test/testmath.c
 ) 
 
 target_include_directories(${APP_TEST_EXE} PRIVATE
                            include
+                           test/include
 )
 
 TARGET_LINK_LIBRARIES( ${APP_TEST_EXE}

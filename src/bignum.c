@@ -7,8 +7,6 @@
 #include <bignum.h>
 #include <internalbignum.h>
 
-#define BITS_PER_BYTE 8
-
 #define NUM_CHAR_TO_REPRESENT_HEX 2
 #define NUM_CHAR_TO_REPRESENT_BIN 8
 
@@ -62,6 +60,38 @@ bnSetLastError(bignumerr_t err)
 {
     bnLastError_ = err;
 }
+
+#ifndef NDEBUG
+/*----------------------------------------------------------------------------*/
+void
+bnVerifyLen(bignum num,
+            const char* function,
+            const char* file,
+            const unsigned int line)
+{
+    bignumlocal bnLocal = (bignumlocal)(num);
+    unsigned int numBytes = bnGetSizeInBytes();
+
+    for (unsigned int i = numBytes; i > 0; i--)
+    {
+        if (bnLocal->bytes[i - 1] > 0)
+        {
+            if (i != bnLocal->numBytes)
+            {
+                printf("Origin function %s: file: %s, line %u (%u, %u)\n",
+                       function,
+                       file,
+                       line,
+                       i,
+                       bnLocal->numBytes);
+                assert(i == bnLocal->numBytes);
+            }
+
+            break;
+        }
+    }
+}
+#endif /* #ifdef NDEBUG */
 
 /*----------------------------------------------------------------------------*/
 static bignumerr_t
@@ -401,15 +431,27 @@ bnGenerateRandNum_(bignum num)
 {
     bignumerr_t rc = bnValidateInitialize(num);
     bignumlocal bnLocal = (bignumlocal)(num);
+    unsigned int numBytes = bnGetSizeInBytes();
+    BOOL leftmostByte = FALSE;
 
     srand((unsigned int)time(NULL));
 
-    bnLocal->numBytes = bnGetSizeInBytes();
+    bnLocal->numBytes = 1;
 
-    for (unsigned int i = 0; i < bnLocal->numBytes; i++)
+    for (unsigned int i = numBytes; i > 0; i--)
     {
-        bnLocal->bytes[i] = rand() % 256;
+        bnLocal->bytes[i - 1] = rand() % 256;
+        if (!leftmostByte)
+        {
+            if (bnLocal->bytes[i - 1] != 0)
+            {
+                bnLocal->numBytes = i;
+                leftmostByte = TRUE;
+            }
+        }
     }
+
+    BNVERIFYLEN(num);
 
     return rc;
 }
@@ -926,6 +968,8 @@ bigNumSetHex(bignum num, char* charVal)
     bnInfo_.callbackToAction = bnPutBytes_;
     rc = bnGeneric(num, charVal);
 
+    BNVERIFYLEN(num);
+
     bnLastError_ = rc;
     return rc;
 }
@@ -939,6 +983,8 @@ bigNumSetBin(bignum num, char* charVal)
     bnInfo_.callbackToConvert = bnAddCharBinInByte_;
     bnInfo_.callbackToAction = bnPutBytes_;
     rc = bnGeneric(num, charVal);
+
+    BNVERIFYLEN(num);
 
     bnLastError_ = rc;
     return rc;
@@ -958,9 +1004,11 @@ bigNumSet(bignum num1, bignum num2)
 
     if (BN_OK == rc)
     {
-        unsigned int numBytesTot = numBytes + sizeof(unsigned int);
+        unsigned int numBytesTot = BYTES_TO_SIZE + numBytes + BYTE_TO_OVERFLOW;
         memcpy(num1, num2, numBytesTot);
     }
+
+    BNVERIFYLEN(num1);
 
     bnLastError_ = rc;
     return rc;
@@ -1101,6 +1149,8 @@ bigNumShiftLeft(bignum num, const unsigned int numBits)
         bnShiftLeftNBytes_(num, nShiftByte);
     }
 
+    BNVERIFYLEN(num);
+
     bnLastError_ = rc;
     return rc;
 }
@@ -1118,6 +1168,8 @@ bigNumShiftRight(bignum num, unsigned int numBits)
         bnShifRightNBytes_(num, nShiftByte);
         bnShiftRightNBits_(num, nShiftBits);
     }
+
+    BNVERIFYLEN(num);
 
     bnLastError_ = rc;
     return rc;
