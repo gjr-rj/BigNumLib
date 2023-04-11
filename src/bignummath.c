@@ -105,6 +105,7 @@ bnmthAddChr_(unsigned short* result,
              const unsigned char* num2,
              typeoperation typeAdd)
 {
+    unsigned char num2Temp;
     typeoperation rc = typeAdd;
 
     assert(NULL != result);
@@ -115,7 +116,7 @@ bnmthAddChr_(unsigned short* result,
     {
         case bnopinvert:
         case bnopcompl2:
-            unsigned char num2Temp = *num2;
+            num2Temp = *num2;
             rc = compl2Byte_(&num2Temp, typeAdd);
 
             *result += *num1 + num2Temp;

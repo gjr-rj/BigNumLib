@@ -24,6 +24,7 @@ ADD_EXECUTABLE( ${APP_TEST_EXE}
                 test/bignumQA.c
                 test/testbase.c
                 test/testmath.c
+                test/testmathperformance.c
 ) 
 
 target_include_directories(${APP_TEST_EXE} PRIVATE

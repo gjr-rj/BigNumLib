@@ -119,20 +119,22 @@ bnGenericToChar_(const bignum num,
 
     if (BN_OK == rc)
     {
+        char byte;
+
         for (unsigned int i = bnLocal->numBytes; i > 0; i--)
         {
             switch (numCharPerByte)
             {
                 case NUM_CHAR_TO_REPRESENT_HEX:
-                    sprintf_s((valNum + vnIdx),
+                    snprintf((valNum + vnIdx),
                               numCharPerByte + 1,
                               "%02X",
                               *(bnLocal->bytes + (i - 1)));
                     break;
 
                 case NUM_CHAR_TO_REPRESENT_BIN:
-                    char byte = *(bnLocal->bytes + (i - 1));
-                    sprintf_s((valNum + vnIdx),
+                    byte = *(bnLocal->bytes + (i - 1));
+                    snprintf((valNum + vnIdx),
                               NUM_CHAR_TO_REPRESENT_BIN + 1,
                               "%d%d%d%d%d%d%d%d",
                               (byte & 0x80) >> 7,
