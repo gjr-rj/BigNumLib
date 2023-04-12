@@ -1,5 +1,5 @@
 #ifndef TEST_MATH_PERF_H
-#define TEST_MATH_PERF_H /* #ifndef TEST_MATH_PERF_H */
+#define TEST_MATH_PERF_H
 
 #include <bignum.h>
 #include <bignumerr.h>
@@ -15,4 +15,4 @@ void testMathPerformance(unsigned int bigNumSize,
 
 #define PERFORMANCE_MATH(x, y) testMathPerformance(x, #y, y)
 
-#endif /* #ifndef TEST_MATH_PERF_H */
+#endif
