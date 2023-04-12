@@ -20,11 +20,16 @@ target_include_directories( ${LIBRARY_NAME} PRIVATE
 
 SET( APP_TEST_EXE bignumlibQA )
 
+find_package(OpenSSL REQUIRED)
+include_directories(${OPENSSL_INCLUDE_DIR})
+link_directories(${OPENSSL_LIBRARIES})
+
 ADD_EXECUTABLE( ${APP_TEST_EXE}
                 test/bignumQA.c
                 test/testbase.c
                 test/testmath.c
                 test/testmathperformance.c
+                test/compopenssl.c
 ) 
 
 target_include_directories(${APP_TEST_EXE} PRIVATE
@@ -34,4 +39,5 @@ target_include_directories(${APP_TEST_EXE} PRIVATE
 
 TARGET_LINK_LIBRARIES( ${APP_TEST_EXE}
                        ${LIBRARY_NAME}
+                       ${OPENSSL_LIBRARIES}
 )
