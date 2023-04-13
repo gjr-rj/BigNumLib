@@ -66,7 +66,7 @@ bnmthValidateOpParam_(bignum num1, bignum num2, bignum numResult)
 
 /*----------------------------------------------------------------------------*/
 static typeoperation
-compl2Byte_(unsigned short* byte, typeoperation typeAdd)
+compl2Byte_(unsigned int* byte, typeoperation typeAdd)
 {
     typeoperation rc = typeAdd;
 
@@ -77,7 +77,7 @@ compl2Byte_(unsigned short* byte, typeoperation typeAdd)
     {
         if (0 != *byte)
         {
-            unsigned short op = 0XFFFF;
+            unsigned int op = 0XFFFFFFFF;
             for (int i = 0; i < BITS_PER_BYTE * BYTE_TO_OVERFLOW; i++)
             {
                 op <<= 0x01;
@@ -92,7 +92,7 @@ compl2Byte_(unsigned short* byte, typeoperation typeAdd)
     }
     else
     {
-        *byte ^= 0xFFFF;
+        *byte ^= 0xFFFFFFFF;
     }
 
     return rc;
@@ -100,12 +100,12 @@ compl2Byte_(unsigned short* byte, typeoperation typeAdd)
 
 /*----------------------------------------------------------------------------*/
 static typeoperation
-bnmthAddChr_(unsigned int* result,
-             const unsigned short* num1,
-             const unsigned short* num2,
+bnmthAddChr_(long long* result,
+             const unsigned int* num1,
+             const unsigned int* num2,
              typeoperation typeAdd)
 {
-    unsigned short num2Temp;
+    unsigned int num2Temp;
     typeoperation rc = typeAdd;
 
     assert(NULL != result);
@@ -149,7 +149,7 @@ compl2_(bignum num)
             break;
         }
 
-        typeAdd = compl2Byte_((unsigned short *)(bnLocal->bytes + i), typeAdd);
+        typeAdd = compl2Byte_((unsigned int*)(bnLocal->bytes + i), typeAdd);
         if (bnLocal->bytes[i] != 0)
         {
             newSize = i + 1;
@@ -240,13 +240,13 @@ bnmthSlowSumComp2_(bignum numResult, const bignum num1, const bignum num2)
     sizeNumInBytes = bnmthHigherNumByte_(num1, num2);
     bnLocalR->numBytes = numBytes;
 
-    for (unsigned int i = 0; i < numBytes; i++)
+    for (unsigned int i = 0; i < numBytes; i += BYTE_TO_OVERFLOW)
     {
-        unsigned int* result = (unsigned int*)(bnLocalR->bytes + i);
+        long long* result = (long long*)(bnLocalR->bytes + i);
 
         if (i >= sizeNumInBytes)
         {
-            *(bnLocalR->bytes + numBytes) = (unsigned char)*result;
+            *(bnLocalR->bytes + numBytes) = (unsigned int)*result;
             if (0 == *result)
             {
                 bnLocalR->numBytes = numBytes;
@@ -260,10 +260,12 @@ bnmthSlowSumComp2_(bignum numResult, const bignum num1, const bignum num2)
             break;
         }
 
-        op = bnmthAddChr_(
-                result, (unsigned short *)(bnLocal1->bytes + i), (unsigned short *)(bnLocal2->bytes + i), op);
+        op = bnmthAddChr_(result,
+                          (unsigned int*)(bnLocal1->bytes + i),
+                          (unsigned int*)(bnLocal2->bytes + i),
+                          op);
 
-        if ((*result & 0x00FF) > 0)
+        if ((*result & 0x00000000000000FF) > 0)
         {
             bnLocalR->numBytes = i + 1;
         }
@@ -299,22 +301,35 @@ bnmthSlowSum_(bignum numResult, const bignum num1, const bignum num2)
     sizeNumInBytes = bnmthHigherNumByte_(num1, num2);
     bnLocalR->numBytes = numBytes;
 
-    for (unsigned int i = 0; i < numBytes; i=+BYTE_TO_OVERFLOW)
+    for (unsigned int i = 0; i < numBytes; i += BYTE_TO_OVERFLOW)
     {
-        unsigned int* result = (unsigned int*)(bnLocalR->bytes + i);
+        long long* result = (long long*)(bnLocalR->bytes + i);
 
         if (i >= sizeNumInBytes)
         {
             if (*result <= 0)
             {
-                bnLocalR->numBytes = i;
+                if ((char)*(bnLocalR->bytes + i-1) != '\0')
+                {
+                    bnLocalR->numBytes = i;
+                }
+                else if ((char)*(bnLocalR->bytes + i-2) != '\0')
+                {
+                    bnLocalR->numBytes = i - 1;
+                }
+                else
+                {
+                    bnLocalR->numBytes = i - 2;
+                }
+                
+                
                 break;
             }
         }
 
         (void)bnmthAddChr_(result,
-                           (unsigned short*)(bnLocal1->bytes + i),
-                           (unsigned short *)(bnLocal2->bytes + i),
+                           (unsigned int*)(bnLocal1->bytes + i),
+                           (unsigned int*)(bnLocal2->bytes + i),
                            bnopdefault);
     }
 

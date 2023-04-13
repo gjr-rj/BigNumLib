@@ -17,7 +17,7 @@ void
 main(void)
 {
     // testBase();
-    // testMath();
+    //testMath();
 
     printf("Base, time to add interger\n");
     PERFORMANCE_MATH(32, baseCompAddInt);
@@ -28,7 +28,6 @@ main(void)
     PERFORMANCE_OPENSSL(3200, openSSLAdd);
     PERFORMANCE_OPENSSL(3200000, openSSLAdd);
     printf("-------------------------------\n");
-
 
     PERFORMANCE_MATH(32, bigNumAdd);
     PERFORMANCE_MATH(3200, bigNumAdd);
