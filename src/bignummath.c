@@ -10,6 +10,8 @@ typedef enum
     bnopinvert
 } typeoperation;
 
+static const int nBytesToInvert_ = BITS_PER_BYTE * BYTE_TO_OVERFLOW;
+
 /*----------------------------------------------------------------------------*/
 static void
 bnmthSetFullByte_(unsigned char* bytes, size_t size)
@@ -66,7 +68,7 @@ bnmthValidateOpParam_(bignum num1, bignum num2, bignum numResult)
 
 /*----------------------------------------------------------------------------*/
 static typeoperation
-compl2Byte_(unsigned int* byte, typeoperation typeAdd)
+compl2Byte_(int_val_to_add* byte, typeoperation typeAdd)
 {
     typeoperation rc = typeAdd;
 
@@ -77,8 +79,8 @@ compl2Byte_(unsigned int* byte, typeoperation typeAdd)
     {
         if (0 != *byte)
         {
-            unsigned int op = 0XFFFFFFFF;
-            for (int i = 0; i < BITS_PER_BYTE * BYTE_TO_OVERFLOW; i++)
+            int_val_to_add op = MASK_TO_INVERT_BYTES;
+            for (int i = 0; i < nBytesToInvert_; i++)
             {
                 op <<= 0x01;
                 if (((*byte ^ op) & *byte) > 0)
@@ -92,7 +94,7 @@ compl2Byte_(unsigned int* byte, typeoperation typeAdd)
     }
     else
     {
-        *byte ^= 0xFFFFFFFF;
+        *byte ^= MASK_TO_INVERT_BYTES;
     }
 
     return rc;
@@ -100,12 +102,12 @@ compl2Byte_(unsigned int* byte, typeoperation typeAdd)
 
 /*----------------------------------------------------------------------------*/
 static typeoperation
-bnmthAddChr_(long long* result,
-             const unsigned int* num1,
-             const unsigned int* num2,
+bnmthAddChr_(int_result* result,
+             const int_val_to_add* num1,
+             const int_val_to_add* num2,
              typeoperation typeAdd)
 {
-    unsigned int num2Temp;
+    int_val_to_add num2Temp;
     typeoperation rc = typeAdd;
 
     assert(NULL != result);
@@ -149,7 +151,7 @@ compl2_(bignum num)
             break;
         }
 
-        typeAdd = compl2Byte_((unsigned int*)(bnLocal->bytes + i), typeAdd);
+        typeAdd = compl2Byte_((int_val_to_add*)(bnLocal->bytes + i), typeAdd);
         if (bnLocal->bytes[i] != 0)
         {
             newSize = i + 1;
@@ -201,7 +203,7 @@ bnmthFastSum_(bignum numResult,
 
 /*----------------------------------------------------------------------------*/
 static unsigned int
-bnmthHigherNumByte_(const bignum num1, const bignum num2)
+bnmthHighterNumByte_(const bignum num1, const bignum num2)
 {
     unsigned int rc;
     bignumlocal bnLocal1 = (bignumlocal)(num1);
@@ -237,12 +239,12 @@ bnmthSlowSumComp2_(bignum numResult, const bignum num1, const bignum num2)
 
     bnmthReset_(numResult);
 
-    sizeNumInBytes = bnmthHigherNumByte_(num1, num2);
+    sizeNumInBytes = bnmthHighterNumByte_(num1, num2);
     bnLocalR->numBytes = numBytes;
 
     for (unsigned int i = 0; i < numBytes; i += BYTE_TO_OVERFLOW)
     {
-        long long* result = (long long*)(bnLocalR->bytes + i);
+        int_result* result = (int_result*)(bnLocalR->bytes + i);
 
         if (i >= sizeNumInBytes)
         {
@@ -261,8 +263,8 @@ bnmthSlowSumComp2_(bignum numResult, const bignum num1, const bignum num2)
         }
 
         op = bnmthAddChr_(result,
-                          (unsigned int*)(bnLocal1->bytes + i),
-                          (unsigned int*)(bnLocal2->bytes + i),
+                          (int_val_to_add*)(bnLocal1->bytes + i),
+                          (int_val_to_add*)(bnLocal2->bytes + i),
                           op);
 
         if ((*result & 0x00000000000000FF) > 0)
@@ -282,6 +284,20 @@ bnmthSlowSumComp2_(bignum numResult, const bignum num1, const bignum num2)
 }
 
 /*----------------------------------------------------------------------------*/
+static void
+adjustNumBytesResult_(bignumlocal bnLocalR, unsigned int index)
+{
+    for (int i = 0; i < BYTE_TO_OVERFLOW; i++)
+    {
+        if ((char)*(bnLocalR->bytes + index - i - 1) != '\0')
+        {
+            bnLocalR->numBytes = index - i;
+            break;
+        }
+    }
+}
+
+/*----------------------------------------------------------------------------*/
 static bignumerr_t
 bnmthSlowSum_(bignum numResult, const bignum num1, const bignum num2)
 {
@@ -298,38 +314,25 @@ bnmthSlowSum_(bignum numResult, const bignum num1, const bignum num2)
 
     bnmthReset_(numResult);
 
-    sizeNumInBytes = bnmthHigherNumByte_(num1, num2);
+    sizeNumInBytes = bnmthHighterNumByte_(num1, num2);
     bnLocalR->numBytes = numBytes;
 
     for (unsigned int i = 0; i < numBytes; i += BYTE_TO_OVERFLOW)
     {
-        long long* result = (long long*)(bnLocalR->bytes + i);
+        int_result* result = (int_result*)(bnLocalR->bytes + i);
 
         if (i >= sizeNumInBytes)
         {
             if (*result <= 0)
             {
-                if ((char)*(bnLocalR->bytes + i-1) != '\0')
-                {
-                    bnLocalR->numBytes = i;
-                }
-                else if ((char)*(bnLocalR->bytes + i-2) != '\0')
-                {
-                    bnLocalR->numBytes = i - 1;
-                }
-                else
-                {
-                    bnLocalR->numBytes = i - 2;
-                }
-                
-                
+                adjustNumBytesResult_(bnLocalR, i);
                 break;
             }
         }
 
         (void)bnmthAddChr_(result,
-                           (unsigned int*)(bnLocal1->bytes + i),
-                           (unsigned int*)(bnLocal2->bytes + i),
+                           (int_val_to_add*)(bnLocal1->bytes + i),
+                           (int_val_to_add*)(bnLocal2->bytes + i),
                            bnopdefault);
     }
 

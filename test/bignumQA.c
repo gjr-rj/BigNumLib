@@ -16,8 +16,8 @@
 void
 main(void)
 {
-    // testBase();
-    //testMath();
+    testBase();
+    testMath();
 
     printf("Base, time to add interger\n");
     PERFORMANCE_MATH(32, baseCompAddInt);
