@@ -1,4 +1,5 @@
 #include <string.h>
+#include <stdio.h>
 
 #include <commonbignum.h>
 #include <internalbignum.h>
@@ -11,6 +12,10 @@ typedef enum
 } typeoperation;
 
 static const int nBytesToInvert_ = BITS_PER_BYTE * BYTE_TO_OVERFLOW;
+
+static void adjustNumBytesResult_(bignumlocal bnLocalR,
+                                  unsigned int index,
+                                  unsigned int count);
 
 /*----------------------------------------------------------------------------*/
 static void
@@ -121,10 +126,10 @@ bnmthAddChr_(int_result* result,
             num2Temp = *num2;
             rc = compl2Byte_(&num2Temp, typeAdd);
 
-            *result += *num1 + num2Temp;
+            *result += (int_result)*num1 + (int_result)num2Temp;
             break;
         default:
-            *result += *num1 + *num2;
+            *result += (int_result)*num1 + (int_result)*num2;
             break;
     }
 
@@ -142,7 +147,7 @@ compl2_(bignum num)
 
     assert(NULL != num);
 
-    for (unsigned int i = 0; i < numBytes; i++)
+    for (unsigned int i = 0; i < numBytes; i += BYTE_TO_OVERFLOW)
     {
         if ((i >= bnLocal->numBytes) && (bnopinvert == typeAdd))
         {
@@ -248,7 +253,7 @@ bnmthSlowSumComp2_(bignum numResult, const bignum num1, const bignum num2)
 
         if (i >= sizeNumInBytes)
         {
-            *(bnLocalR->bytes + numBytes) = (unsigned int)*result;
+            *(bnLocalR->bytes + numBytes) = (unsigned char)*result;
             if (0 == *result)
             {
                 bnLocalR->numBytes = numBytes;
@@ -257,6 +262,7 @@ bnmthSlowSumComp2_(bignum numResult, const bignum num1, const bignum num2)
             else
             {
                 *(bnLocalR->bytes + i) = 0;
+                bnLocalR->numBytes = i;
             }
 
             break;
@@ -266,12 +272,9 @@ bnmthSlowSumComp2_(bignum numResult, const bignum num1, const bignum num2)
                           (int_val_to_add*)(bnLocal1->bytes + i),
                           (int_val_to_add*)(bnLocal2->bytes + i),
                           op);
-
-        if ((*result & 0x00000000000000FF) > 0)
-        {
-            bnLocalR->numBytes = i + 1;
-        }
     }
+
+    adjustNumBytesResult_(bnLocalR, bnLocalR->numBytes, bnLocalR->numBytes);
 
     *(bnLocalR->bytes + numBytes) ^= 0x01;
 
@@ -285,9 +288,11 @@ bnmthSlowSumComp2_(bignum numResult, const bignum num1, const bignum num2)
 
 /*----------------------------------------------------------------------------*/
 static void
-adjustNumBytesResult_(bignumlocal bnLocalR, unsigned int index)
+adjustNumBytesResult_(bignumlocal bnLocalR,
+                      unsigned int index,
+                      unsigned int count)
 {
-    for (int i = 0; i < BYTE_TO_OVERFLOW; i++)
+    for (unsigned int i = 0; i < count; i++)
     {
         if ((char)*(bnLocalR->bytes + index - i - 1) != '\0')
         {
@@ -325,7 +330,7 @@ bnmthSlowSum_(bignum numResult, const bignum num1, const bignum num2)
         {
             if (*result <= 0)
             {
-                adjustNumBytesResult_(bnLocalR, i);
+                adjustNumBytesResult_(bnLocalR, i, BYTE_TO_OVERFLOW);
                 break;
             }
         }

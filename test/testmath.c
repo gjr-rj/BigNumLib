@@ -122,6 +122,7 @@ testSub(void)
         assert(bigNumCmpHex(n3, "345F00") == 0);
 
         assert(bigNumSub(n3, n1, n2) == BN_ERR_OVERFLOW);
+        bigNumPrint(n3, BN_FLAG_PRINT_0X|BN_FLAG_PRINT_SPACE);
         assert(bigNumCmpHex(n3,
                             "FFFFFFFFFFFFFFFFFFFF"
                             "FFFFFFFFFFFFFFFFFFFF"

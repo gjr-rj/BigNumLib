@@ -436,7 +436,9 @@ bnGenerateRandNum_(bignum num)
     unsigned int numBytes = bnGetSizeInBytes();
     BOOL leftmostByte = FALSE;
 
-    srand((unsigned int)time(NULL));
+    clock_t now = clock();
+    time_t tnow = (time_t)now;
+    srand((unsigned int)time(&tnow));
 
     bnLocal->numBytes = 1;
 

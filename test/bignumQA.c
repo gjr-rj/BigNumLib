@@ -33,6 +33,13 @@ main(void)
     PERFORMANCE_MATH(3200, bigNumAdd);
     PERFORMANCE_MATH(3200000, bigNumAdd);
     printf("-------------------------------\n");
+
+    printf("Base, OpenSSL\n");
+    PERFORMANCE_OPENSSL(32, openSSLSub);
+    PERFORMANCE_OPENSSL(3200, openSSLSub);
+    PERFORMANCE_OPENSSL(3200000, openSSLSub);
+    printf("-------------------------------\n");
+   
     PERFORMANCE_MATH(32, bigNumSub);
     PERFORMANCE_MATH(3200, bigNumSub);
     PERFORMANCE_MATH(3200000, bigNumSub);

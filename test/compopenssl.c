@@ -3,11 +3,20 @@
 
 #include <compopenssl.h>
 
+/*----------------------------------------------------------------------------*/
 int
 openSSLAdd(BIGNUM* r, BIGNUM* a, BIGNUM* b)
 {
-    BIGNUM* soma = BN_new();
     BN_add(r, a, b);
+
+    return 0;
+}
+
+/*----------------------------------------------------------------------------*/
+int
+openSSLSub(BIGNUM* r, BIGNUM* a, BIGNUM* b)
+{
+    BN_sub(r, a, b);
 
     return 0;
 }
