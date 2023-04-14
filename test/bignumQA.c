@@ -39,7 +39,7 @@ main(void)
     PERFORMANCE_OPENSSL(3200, openSSLSub);
     PERFORMANCE_OPENSSL(3200000, openSSLSub);
     printf("-------------------------------\n");
-   
+
     PERFORMANCE_MATH(32, bigNumSub);
     PERFORMANCE_MATH(3200, bigNumSub);
     PERFORMANCE_MATH(3200000, bigNumSub);
