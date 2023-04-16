@@ -1,0 +1,30 @@
+bigNum Lib Version 1.0.0b0
+=========================
+
+Base, time to add interger
+baseCompAddInt (32): 158213 per sec
+-------------------------------
+Base, OpenSSL
+openSSLAdd (32): 130087 per sec
+openSSLAdd (3200): 88691 per sec
+openSSLAdd (3200000): 241 per sec
+-------------------------------
+bigNumAdd (32): 139702 per sec
+bigNumAdd (3200): 136610 per sec
+bigNumAdd (3200000): 1329 per sec
+-------------------------------
+Base, OpenSSL
+openSSLSub (32): 126948 per sec
+openSSLSub (3200): 88471 per sec
+openSSLSub (3200000): 279 per sec
+-------------------------------
+bigNumSub (32): 154205 per sec
+bigNumSub (3200): 128037 per sec
+bigNumSub (3200000): 816 per sec
+-------------------------------
+-------------------------------
+Base, time to Mult interger
+baseCompMultInt (32): 157437 per sec
+##############################
+#            Test OK         #
+##############################

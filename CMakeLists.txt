@@ -1,6 +1,10 @@
 cmake_minimum_required( VERSION 3.0 )
 project( bignumlib )
 
+if(CMAKE_BUILD_TYPE STREQUAL "Release")
+    add_compile_definitions(NDEBUG)
+endif()
+
 set( LIBRARY_NAME bignum )
 set( ROOT_PATH ../ )
 

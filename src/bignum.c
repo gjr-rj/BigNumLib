@@ -3,6 +3,7 @@
 #include <string.h>
 #include <time.h>
 
+#include <version.h>
 #include <commonbignum.h>
 #include <bignum.h>
 #include <internalbignum.h>
@@ -127,24 +128,24 @@ bnGenericToChar_(const bignum num,
             {
                 case NUM_CHAR_TO_REPRESENT_HEX:
                     snprintf((valNum + vnIdx),
-                              numCharPerByte + 1,
-                              "%02X",
-                              *(bnLocal->bytes + (i - 1)));
+                             numCharPerByte + 1,
+                             "%02X",
+                             *(bnLocal->bytes + (i - 1)));
                     break;
 
                 case NUM_CHAR_TO_REPRESENT_BIN:
                     byte = *(bnLocal->bytes + (i - 1));
                     snprintf((valNum + vnIdx),
-                              NUM_CHAR_TO_REPRESENT_BIN + 1,
-                              "%d%d%d%d%d%d%d%d",
-                              (byte & 0x80) >> 7,
-                              (byte & 0x40) >> 6,
-                              (byte & 0x20) >> 5,
-                              (byte & 0x10) >> 4,
-                              (byte & 0x08) >> 3,
-                              (byte & 0x04) >> 2,
-                              (byte & 0x02) >> 1,
-                              (byte & 0x01));
+                             NUM_CHAR_TO_REPRESENT_BIN + 1,
+                             "%d%d%d%d%d%d%d%d",
+                             (byte & 0x80) >> 7,
+                             (byte & 0x40) >> 6,
+                             (byte & 0x20) >> 5,
+                             (byte & 0x10) >> 4,
+                             (byte & 0x08) >> 3,
+                             (byte & 0x04) >> 2,
+                             (byte & 0x02) >> 1,
+                             (byte & 0x01));
 
                     break;
             }
@@ -826,6 +827,17 @@ bnGeneric(bignum num, char* charVal)
 
     bnLastError_ = rc;
     return rc;
+}
+
+/*----------------------------------------------------------------------------*/
+bignunversion_t
+bigNumGetVersion(void)
+{
+    return (bignunversion_t) {VERSION_MAJOR,
+                              VERSION_MIDDLE,
+                              VERSION_MINOR,
+                              VERSION_BUILD,
+                              VERSION_STRING};
 }
 
 /*----------------------------------------------------------------------------*/

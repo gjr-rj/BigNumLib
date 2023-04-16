@@ -18,6 +18,23 @@ typedef enum
 typedef unsigned char* bignum;
 typedef int bignumerr_t;
 
+typedef struct
+{
+    short major;
+    short middle;
+    short minor;
+    short build;
+    char strVersion[12];
+} bignunversion_t;
+
+/**
+ * \brief return version of the lib.
+ *
+ * \return bignunversion_t
+ *
+ */
+bignunversion_t bigNumGetVersion(void);
+
 /**
  * \brief return error code of bignum function.
  *
@@ -263,10 +280,10 @@ bignumerr_t bigNumShiftLeft(bignum num, const unsigned int numBits);
 /**
  * \brief Shift bignum N bits to right.
  *
- * This function shift bignum N bits to rigth. The number to shift can be between
- * 0 and the maximum allowed by an unsigned int. However, if the number of bits
- * is greater than the number of bits informed when initializing the bignum, the
- * result will always be 0.
+ * This function shift bignum N bits to rigth. The number to shift can be
+ * between 0 and the maximum allowed by an unsigned int. However, if the number
+ * of bits is greater than the number of bits informed when initializing the
+ * bignum, the result will always be 0.
  *
  * \param num bignum.
  * \param num num bits to shift.
@@ -283,7 +300,7 @@ bignumerr_t bigNumShiftRight(bignum num, unsigned int numBits);
  * \param num bignum.
  * \param valNum will receive the Hex string.
  * \param size size of valNum.
- * 
+ *
  * \return bignumerr_t
  * - BN_OK to sucess
  * - error code.
@@ -298,7 +315,7 @@ bignumerr_t bigNumToStrHex(bignum num,
  * \param num bignum.
  * \param valNum will receive the Bin string.
  * \param size size of valNum.
- * 
+ *
  * \return bignumerr_t
  * - BN_OK to sucess
  * - error code.

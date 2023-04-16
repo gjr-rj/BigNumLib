@@ -16,6 +16,11 @@
 void
 main(void)
 {
+    bignunversion_t v = bigNumGetVersion();
+    printf("bigNum Lib Version %s\n"
+           "=========================\n",
+           v.strVersion);
+
     testBase();
     testMath();
 
