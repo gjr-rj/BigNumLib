@@ -11,6 +11,19 @@ typedef enum
     bnopinvert
 } typeoperation;
 
+#define NO_OPERATIONS_IN_ASSEMBLY
+#ifdef _OPERATIONS_IN_ASSEMBLY
+#ifdef _WIN64
+int bnAddArrayOfBytes_(unsigned char* s,
+                       const unsigned char* a,
+                       const unsigned char* b,
+                       const unsigned int maxSize,
+                       const unsigned int sizeBiggerNum);
+
+#define _OP_AS_WIN64
+#endif /* #ifdef _WIN64 */
+#endif /* #ifdef OPERATIN_IN_ASSEMBLY */
+
 static const int nBytesToInvert_ = BITS_PER_BYTE * BYTE_TO_OVERFLOW;
 
 static void adjustNumBytesResult_(bignumlocal bnLocalR,
@@ -322,6 +335,21 @@ bnmthSlowSum_(bignum numResult, const bignum num1, const bignum num2)
     sizeNumInBytes = bnmthHighterNumByte_(num1, num2);
     bnLocalR->numBytes = numBytes;
 
+#ifdef _OP_AS_WIN64
+    {
+        /* do not more fast */
+        int hasOverflow = bnAddArrayOfBytes_(bnLocalR->bytes,
+                                             bnLocal1->bytes,
+                                             bnLocal2->bytes,
+                                             numBytes,
+                                             sizeNumInBytes);
+        if (hasOverflow > 0)
+        {
+            rc = BN_ERR_OVERFLOW;
+        }
+    }
+#else /* #ifdef _OP_AS_WIN64 */
+
     for (unsigned int i = 0; i < numBytes; i += BYTE_TO_OVERFLOW)
     {
         int_result* result = (int_result*)(bnLocalR->bytes + i);
@@ -345,6 +373,8 @@ bnmthSlowSum_(bignum numResult, const bignum num1, const bignum num2)
     {
         rc = BN_ERR_OVERFLOW;
     }
+
+#endif /* #ifdef _WIN64 */
 
     return rc;
 }

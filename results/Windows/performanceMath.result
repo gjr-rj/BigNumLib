@@ -28,3 +28,35 @@ baseCompMultInt (32): 7835553 per sec
 #            Test OK         #
 ##############################
 
+Do not more fast with sum in assembly. Disable code.
+
+bigNum Lib Version 1.0.1b0
+=========================
+
+Base, time to add interger
+baseCompAddInt (32): 7927127 per sec
+-------------------------------
+Base, OpenSSL
+openSSLAdd (32): 2083979 per sec
+openSSLAdd (3200): 315326 per sec
+openSSLAdd (3200000): 343 per sec
+-------------------------------
+bigNumAdd (32): 4604361 per sec
+bigNumAdd (3200): 875446 per sec
+bigNumAdd (3200000): 935 per sec
+-------------------------------
+Base, OpenSSL
+openSSLSub (32): 1972203 per sec
+openSSLSub (3200): 312643 per sec
+openSSLSub (3200000): 345 per sec
+-------------------------------
+bigNumSub (32): 4477847 per sec
+bigNumSub (3200): 658009 per sec
+bigNumSub (3200000): 710 per sec
+-------------------------------
+-------------------------------
+Base, time to Mult interger
+baseCompMultInt (32): 7870310 per sec
+##############################
+#            Test OK         #
+##############################

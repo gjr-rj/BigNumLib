@@ -12,9 +12,17 @@ set( CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${ROOT_PATH}/lib )
 set( CMAKE_LIBRARY_OUTPUT_DIRECTORY ${ROOT_PATH}/lib )
 set( CMAKE_RUNTIME_OUTPUT_DIRECTORY ${ROOT_PATH}/bin )
 
+if (CMAKE_SYSTEM_NAME STREQUAL "Windows" AND CMAKE_SIZEOF_VOID_P EQUAL 8)
+    enable_language(ASM_MASM)
+    set (FILES_MASM src/platform/windows/x64/add.asm)
+endif()
+
+
 add_library( ${LIBRARY_NAME} STATIC
             src/bignummath.c
             src/bignum.c
+            ${FILES_MASM}
+            
 )
 
 target_include_directories( ${LIBRARY_NAME} PRIVATE
