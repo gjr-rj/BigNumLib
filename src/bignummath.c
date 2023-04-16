@@ -14,6 +14,7 @@ typedef enum
 #define NO_OPERATIONS_IN_ASSEMBLY
 #ifdef _OPERATIONS_IN_ASSEMBLY
 #ifdef _WIN64
+/* code in assembly in add.asm */
 int bnAddArrayOfBytes_(unsigned char* s,
                        const unsigned char* a,
                        const unsigned char* b,
