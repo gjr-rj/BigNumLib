@@ -17,6 +17,15 @@
 #define PARAM1_SMALLER_THEN_PARAM2 (-1)
 #define PARAM1_EQUAL_PARAM2        0
 
+#define IS_DIGIT(n)     ((n >= '0') && (n <= '9'))
+#define DIGIT_TO_HEX(n) (n - '0')
+
+#define IS_AF(n)     ((n >= 'A') && (n <= 'F'))
+#define AF_TO_HEX(n) (n - 'A' + 10)
+
+#define IS_af(n)     ((n >= 'a') && (n <= 'f'))
+#define af_TO_HEX(n) (n - 'a' + 10)
+
 typedef bignumerr_t (*bnFuncAddCharToByte)(unsigned char*, char);
 typedef bignumerr_t (*bnFuncActionBigNumToByte)(bignum,
                                                 unsigned char*,
@@ -41,15 +50,6 @@ static bignumerr_t bnLastError_ = BN_OK;
 static bignumopinfo bnInfo_ = {0, NULL, NULL};
 
 static unsigned int numBits_ = 0;
-
-#define IS_DIGIT(n)     ((n >= '0') && (n <= '9'))
-#define DIGIT_TO_HEX(n) (n - '0')
-
-#define IS_AF(n)     ((n >= 'A') && (n <= 'F'))
-#define AF_TO_HEX(n) (n - 'A' + 10)
-
-#define IS_af(n)     ((n >= 'a') && (n <= 'f'))
-#define af_TO_HEX(n) (n - 'a' + 10)
 
 static unsigned int bnStrLenOf_(char* charVal);
 static unsigned int bnStrLenOf_(char* charVal);
