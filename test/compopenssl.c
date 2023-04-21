@@ -3,6 +3,8 @@
 
 #include <compopenssl.h>
 
+static BN_CTX* ctx_;
+
 /*----------------------------------------------------------------------------*/
 int
 openSSLAdd(BIGNUM* r, BIGNUM* a, BIGNUM* b)
@@ -17,6 +19,15 @@ int
 openSSLSub(BIGNUM* r, BIGNUM* a, BIGNUM* b)
 {
     BN_sub(r, a, b);
+
+    return 0;
+}
+
+/*----------------------------------------------------------------------------*/
+int
+openSSLMul(BIGNUM* r, BIGNUM* a, BIGNUM* b)
+{
+    BN_mul(r, a, b, ctx_);
 
     return 0;
 }
@@ -56,6 +67,8 @@ testOpenSSLhPerformance(unsigned int bigNumSize,
     BN_hex2bn(&num1, chrNum1);
     BN_hex2bn(&num2, chrNum2);
 
+    ctx_ = BN_CTX_new();
+
     start = clock();
     while (tExec < 1)
     {
@@ -67,6 +80,8 @@ testOpenSSLhPerformance(unsigned int bigNumSize,
         diff = difftime(stop, start);
         tExec = (float)diff / CLOCKS_PER_SEC;
     }
+
+    BN_CTX_free(ctx_);
 
     free(chrNum1);
     free(chrNum2);
